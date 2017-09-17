@@ -232,3 +232,6 @@ Saved/Crashes/UE4CC-Windows-1879E3864F2CBB4F5B59309CF0F07D3E_0000/CrashReportCli
 Saved/Crashes/UE4CC-Windows-1879E3864F2CBB4F5B59309CF0F07D3E_0000/UE4Minidump.dmp
 *.sln
 *.db
+Saved/
+Intermediate/
+*.opendb

@@ -29,12 +29,12 @@ const FName AZwentendorfPawn::AbilityYBinding("Ability-Y");
 
 AZwentendorfPawn::AZwentendorfPawn()
 {
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ShipMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ShipMesh(TEXT("/Game/TwinStick/Meshes/Tasis/MOB_Default.MOB_Default")); //StaticMesh'/Game/TwinStick/Meshes/Tasis/MOB_Default.MOB_Default'
 	// Create the mesh component
-	ShipMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShipMesh"));
-	RootComponent = ShipMeshComponent;
-	ShipMeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
-	ShipMeshComponent->SetStaticMesh(ShipMesh.Object);
+	MobilityMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MOB_Mesh"));
+	RootComponent = MobilityMeshComponent;
+	MobilityMeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
+	MobilityMeshComponent->SetStaticMesh(ShipMesh.Object);
 
 	// Cache our sound effect
 	static ConstructorHelpers::FObjectFinder<USoundBase> FireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));

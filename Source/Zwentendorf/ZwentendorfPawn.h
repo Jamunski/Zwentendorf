@@ -13,7 +13,7 @@ class AZwentendorfPawn : public APawn
 
 	/* The mesh component */
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* ShipMeshComponent;
+	class UStaticMeshComponent* MobilityMeshComponent;
 
 	/** The camera */
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -91,8 +91,8 @@ private:
 	FTimerHandle TimerHandle_ShotTimerExpired;
 
 public:
-	/** Returns ShipMeshComponent subobject **/
-	FORCEINLINE class UStaticMeshComponent* GetShipMeshComponent() const { return ShipMeshComponent; }
+	/** Returns MobilityMeshComponent subobject **/
+	FORCEINLINE class UStaticMeshComponent* GetMobilityMeshComponent() const { return MobilityMeshComponent; }
 	/** Returns CameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetCameraComponent() const { return CameraComponent; }
 	/** Returns CameraBoom subobject **/
