@@ -1,11 +1,14 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
 #include "ZwentendorfPawn.h"
+
 #include "ZwentendorfProjectile.h"
+
 #include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMeshSocket.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Engine/CollisionProfile.h"
@@ -29,12 +32,24 @@ const FName AZwentendorfPawn::AbilityYBinding("Ability-Y");
 
 AZwentendorfPawn::AZwentendorfPawn()
 {
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ShipMesh(TEXT("/Game/TwinStick/Meshes/Tasis/MOB_Default.MOB_Default")); //StaticMesh'/Game/TwinStick/Meshes/Tasis/MOB_Default.MOB_Default'
-	// Create the mesh component
-	MobilityMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MOB_Mesh"));
-	RootComponent = MobilityMeshComponent;
-	MobilityMeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
-	MobilityMeshComponent->SetStaticMesh(ShipMesh.Object);
+	UE_LOG(LogActor, Warning, TEXT("AZwentendorfPawn"));
+
+	//Creating and attaching modules to sockets
+	if (!IsTemplate(RF_Transient))
+	{
+		UWorld* const World = GetWorld();
+		if (World != NULL)
+		{
+			FVector location = FVector(0, 0, 1); //JV-TODO: Fix this in the mesh instead...
+			FRotator rotation = FRotator(0.0f);
+
+			//Mobility
+			m_Mobility = World->SpawnActor<AMobilityDefault>(location, rotation);
+
+			//Root
+			RootComponent = m_Mobility->GetRootComponent();
+		}
+	}
 
 	// Cache our sound effect
 	static ConstructorHelpers::FObjectFinder<USoundBase> FireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));
@@ -56,9 +71,40 @@ AZwentendorfPawn::AZwentendorfPawn()
 	// Movement
 	MoveSpeed = 1000.0f;
 	// Weapon
-	GunOffset = FVector(90.f, 0.f, 0.f);
 	FireRate = 0.1f;
 	bCanFire = true;
+}
+
+void AZwentendorfPawn::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if (m_Mobility != nullptr)
+	{
+		//Chassis
+		m_Chassis = GetWorld()->SpawnActor<AChassisDefault>();
+
+		FName fnSckChassis = TEXT("SCK_Chassis");
+		if (m_Mobility->GetMeshComponent()->DoesSocketExist(fnSckChassis))
+		{
+			UE_LOG(LogActor, Warning, TEXT("SCK_Chassis Exists"));
+
+			m_Chassis->AttachToComponent(m_Mobility->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
+		}
+
+		//Weapon
+		if (m_Chassis != nullptr)
+		{
+			m_Cannon = GetWorld()->SpawnActor<ACannon>();
+
+			FName fnSckWeapon = TEXT("SCK_WeaponLeft");
+			if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeapon))
+			{
+				UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
+
+				m_Cannon->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeapon);
+			}
+		}
+	}
 }
 
 void AZwentendorfPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -131,12 +177,17 @@ void AZwentendorfPawn::Aim(FVector AimDirection)
 
 void AZwentendorfPawn::FireShot()
 {
+	UE_LOG(LogActor, Warning, TEXT("Fire"));
+
 	// If we it's ok to fire again
 	if (bCanFire == true)
 	{
-		const FRotator FireRotation = RootComponent->GetComponentRotation();
-		// Spawn projectile at an offset from this pawn
-		const FVector SpawnLocation = GetActorLocation() + FireRotation.RotateVector(GunOffset);
+		// Spawn projectile at an offset using cannon dir vector
+		const UStaticMeshSocket* fireDirectionSocket = m_Cannon->GetMeshComponent()->GetSocketByName("DIR_ProjectilSpawn"); //JV-TODO: Correct this name in the mesh, also account for the radius of the projectile in the mesh file. If you re-export shooting will be broken again...
+		FTransform socketTransform;
+		fireDirectionSocket->GetSocketTransform(socketTransform, m_Cannon->GetMeshComponent());
+		const FVector SpawnLocation = socketTransform.GetLocation();
+		const FRotator FireRotation = socketTransform.GetRotation().Rotator();
 
 		UWorld* const World = GetWorld();
 		if (World != NULL)

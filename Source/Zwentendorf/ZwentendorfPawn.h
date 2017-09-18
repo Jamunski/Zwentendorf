@@ -2,6 +2,11 @@
 
 #pragma once
 
+#include "Cannon.h"
+#include "ChassisDefault.h"
+#include "MobilityDefault.h"
+
+
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ZwentendorfPawn.generated.h"
@@ -11,38 +16,40 @@ class AZwentendorfPawn : public APawn
 {
 	GENERATED_BODY()
 
-	/* The mesh component */
-	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* MobilityMeshComponent;
-
-	/** The camera */
+		/** The camera */
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* CameraComponent;
+		class UCameraComponent* CameraComponent;
 
 	/** Camera boom positioning the camera above the character */
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+		class USpringArmComponent* CameraBoom;
+
+	//Modules
+	UPROPERTY(Category = Module, EditAnywhere)
+		AMobilityDefault* m_Mobility;
+	UPROPERTY(Category = Module, EditAnywhere)
+		AChassisDefault* m_Chassis;
+	UPROPERTY(Category = Module, EditAnywhere)
+		ACannon* m_Cannon;
+	
 
 public:
 	AZwentendorfPawn();
 
-	/** Offset from the ships location to spawn projectiles */
-	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite )
-	FVector GunOffset;
-	
 	/* How fast the weapon will fire */
 	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
-	float FireRate;
+		float FireRate;
 
 	/* The speed our ship moves around the level */
 	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
-	float MoveSpeed;
+		float MoveSpeed;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(Category = Audio, EditAnywhere, BlueprintReadWrite)
-	class USoundBase* FireSound;
+		class USoundBase* FireSound;
 
 	// Begin Actor Interface
+	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End Actor Interface
@@ -91,8 +98,6 @@ private:
 	FTimerHandle TimerHandle_ShotTimerExpired;
 
 public:
-	/** Returns MobilityMeshComponent subobject **/
-	FORCEINLINE class UStaticMeshComponent* GetMobilityMeshComponent() const { return MobilityMeshComponent; }
 	/** Returns CameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetCameraComponent() const { return CameraComponent; }
 	/** Returns CameraBoom subobject **/
