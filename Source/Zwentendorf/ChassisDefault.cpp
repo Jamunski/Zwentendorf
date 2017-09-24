@@ -2,10 +2,9 @@
 
 #include "ChassisDefault.h"
 
-#include "UObject/ConstructorHelpers.h"
-#include "Engine/CollisionProfile.h"
 #include "Components/StaticMeshComponent.h"
-
+#include "Engine/CollisionProfile.h"
+#include "UObject/ConstructorHelpers.h"
 
 AChassisDefault::AChassisDefault()
 {
@@ -16,7 +15,6 @@ AChassisDefault::AChassisDefault()
 		// Create the mesh component
 		MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 		RootComponent = MeshComponent;
-		MeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 		MeshComponent->SetStaticMesh(Mesh.Object);
 	}
 }

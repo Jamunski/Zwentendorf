@@ -30,23 +30,17 @@ class AZwentendorfPawn : public APawn
 	UPROPERTY(Category = Module, EditAnywhere)
 		AChassisDefault* m_Chassis;
 	UPROPERTY(Category = Module, EditAnywhere)
-		ACannon* m_Cannon;
+		ACannon* m_CannonLeft;
+	UPROPERTY(Category = Module, EditAnywhere)
+		ACannon* m_CannonRight;
 	
 
 public:
 	AZwentendorfPawn();
 
-	/* How fast the weapon will fire */
-	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
-		float FireRate;
-
 	/* The speed our ship moves around the level */
 	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
 		float MoveSpeed;
-
-	/** Sound to play each time we fire */
-	UPROPERTY(Category = Audio, EditAnywhere, BlueprintReadWrite)
-		class USoundBase* FireSound;
 
 	// Begin Actor Interface
 	virtual void PostInitializeComponents() override;
@@ -56,12 +50,6 @@ public:
 
 	/* Aim in the specified direction */
 	void Aim(FVector AimDirection);
-
-	/* Fire a shot in the direction the player is facing */
-	void FireShot();
-
-	/* Handler for the fire timer expiry */
-	void ShotTimerExpired();
 
 	// Static names for axis bindings
 	static const FName MoveForwardBinding;
@@ -81,7 +69,7 @@ public:
 
 private:
 
-	void LeftShoulder() {};
+	void LeftShoulder();
 	void RightShoulder();
 	void LeftTrigger() {};
 	void RightTrigger() {};
@@ -90,12 +78,6 @@ private:
 	void Dodge() {};
 	void AbilityX() {};
 	void AbilityY() {};
-
-	/* Flag to control firing  */
-	uint32 bCanFire : 1;
-
-	/** Handle for efficient management of ShotTimerExpired timer */
-	FTimerHandle TimerHandle_ShotTimerExpired;
 
 public:
 	/** Returns CameraComponent subobject **/

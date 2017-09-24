@@ -2,19 +2,15 @@
 
 #include "ZwentendorfPawn.h"
 
-#include "ZwentendorfProjectile.h"
-
-#include "TimerManager.h"
-#include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Engine/StaticMeshSocket.h"
+#include "Components/SphereComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Engine/CollisionProfile.h"
 #include "Engine/StaticMesh.h"
-#include "Kismet/GameplayStatics.h"
-#include "Sound/SoundBase.h"
+#include "Engine/StaticMeshSocket.h"
 
 const FName AZwentendorfPawn::MoveForwardBinding("MoveForward");
 const FName AZwentendorfPawn::MoveRightBinding("MoveRight");
@@ -34,26 +30,10 @@ AZwentendorfPawn::AZwentendorfPawn()
 {
 	UE_LOG(LogActor, Warning, TEXT("AZwentendorfPawn"));
 
-	//Creating and attaching modules to sockets
-	if (!IsTemplate(RF_Transient))
-	{
-		UWorld* const World = GetWorld();
-		if (World != NULL)
-		{
-			FVector location = FVector(0, 0, 1); //JV-TODO: Fix this in the mesh instead...
-			FRotator rotation = FRotator(0.0f);
-
-			//Mobility
-			m_Mobility = World->SpawnActor<AMobilityDefault>(location, rotation);
-
-			//Root
-			RootComponent = m_Mobility->GetRootComponent();
-		}
-	}
-
-	// Cache our sound effect
-	static ConstructorHelpers::FObjectFinder<USoundBase> FireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));
-	FireSound = FireAudio.Object;
+	USphereComponent* SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("RootComponent"));
+	RootComponent = SphereComponent;
+	SphereComponent->InitSphereRadius(30.0f); //JV-TODO: changing this removes my collision problems...
+	SphereComponent->SetCollisionProfileName(TEXT("Pawn"));
 
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -70,38 +50,84 @@ AZwentendorfPawn::AZwentendorfPawn()
 
 	// Movement
 	MoveSpeed = 1000.0f;
-	// Weapon
-	FireRate = 0.1f;
-	bCanFire = true;
 }
 
 void AZwentendorfPawn::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	if (m_Mobility != nullptr)
+
+	//Creating and attaching modules to sockets
+	if (!IsTemplate(RF_Transient))
 	{
-		//Chassis
-		m_Chassis = GetWorld()->SpawnActor<AChassisDefault>();
-
-		FName fnSckChassis = TEXT("SCK_Chassis");
-		if (m_Mobility->GetMeshComponent()->DoesSocketExist(fnSckChassis))
+		UWorld* const World = GetWorld();
+		if (World != NULL)
 		{
-			UE_LOG(LogActor, Warning, TEXT("SCK_Chassis Exists"));
+			FVector location = FVector(0, 0, 0);
+			FRotator rotation = FRotator(0.0f);
 
-			m_Chassis->AttachToComponent(m_Mobility->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
-		}
+			//Mobility
+			m_Mobility = World->SpawnActor<AMobilityDefault>(location, rotation);
 
-		//Weapon
-		if (m_Chassis != nullptr)
-		{
-			m_Cannon = GetWorld()->SpawnActor<ACannon>();
+			m_Mobility->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 
-			FName fnSckWeapon = TEXT("SCK_WeaponLeft");
-			if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeapon))
+			if (m_Mobility != nullptr)
 			{
-				UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
+				//Chassis
+				m_Chassis = World->SpawnActor<AChassisDefault>();
 
-				m_Cannon->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeapon);
+				FName fnSckChassis = TEXT("SCK_Chassis");
+				if (m_Mobility->GetMeshComponent()->DoesSocketExist(fnSckChassis))
+				{
+					UE_LOG(LogActor, Warning, TEXT("SCK_Chassis Exists"));
+
+					m_Chassis->AttachToComponent(m_Mobility->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
+				}
+
+				//Weapon
+				if (m_Chassis != nullptr)
+				{
+					m_CannonLeft = World->SpawnActor<ACannon>();
+
+					FName fnSckWeaponLeft = TEXT("SCK_WeaponLeft");
+					if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponLeft))
+					{
+						UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
+
+						m_CannonLeft->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
+					}
+
+					m_CannonRight = World->SpawnActor<ACannon>();
+
+					FName fnSckWeaponRight = TEXT("SCK_WeaponRight");
+					if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponRight))
+					{
+						UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
+
+						m_CannonRight->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
+					}
+
+					if (m_CannonLeft != nullptr && m_CannonRight != nullptr)
+					{
+						//JV-TODO: Review this - Ignore other meshes attached to this... Maybe there is a better way to do this???
+						m_Chassis->GetMeshComponent()->IgnoreActorWhenMoving(m_CannonLeft, true);
+						m_Chassis->GetMeshComponent()->IgnoreActorWhenMoving(m_Mobility, true);
+
+						m_CannonLeft->GetMeshComponent()->IgnoreActorWhenMoving(m_Chassis, true);
+						m_CannonLeft->GetMeshComponent()->IgnoreActorWhenMoving(m_Mobility, true);
+
+						m_CannonRight->GetMeshComponent()->IgnoreActorWhenMoving(m_Chassis, true);
+						m_CannonRight->GetMeshComponent()->IgnoreActorWhenMoving(m_Mobility, true);
+
+						m_Mobility->GetMeshComponent()->IgnoreActorWhenMoving(m_CannonLeft, true);
+						m_Mobility->GetMeshComponent()->IgnoreActorWhenMoving(m_CannonRight, true);
+						m_Mobility->GetMeshComponent()->IgnoreActorWhenMoving(m_Chassis, true);
+
+						//JV-TODO: Review this - Welding meshes together...Better?
+						//m_CannonLeft->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponLeft);
+						//m_CannonRight->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponRight);
+						//m_Chassis->GetMeshComponent()->WeldTo(m_Mobility->GetMeshComponent(), fnSckChassis);
+					}
+				}
 			}
 		}
 	}
@@ -175,49 +201,15 @@ void AZwentendorfPawn::Aim(FVector AimDirection)
 	}
 }
 
-void AZwentendorfPawn::FireShot()
-{
-	UE_LOG(LogActor, Warning, TEXT("Fire"));
-
-	// If we it's ok to fire again
-	if (bCanFire == true)
-	{
-		// Spawn projectile at an offset using cannon dir vector
-		const UStaticMeshSocket* fireDirectionSocket = m_Cannon->GetMeshComponent()->GetSocketByName("DIR_ProjectilSpawn"); //JV-TODO: Correct this name in the mesh, also account for the radius of the projectile in the mesh file. If you re-export shooting will be broken again...
-		FTransform socketTransform;
-		fireDirectionSocket->GetSocketTransform(socketTransform, m_Cannon->GetMeshComponent());
-		const FVector SpawnLocation = socketTransform.GetLocation();
-		const FRotator FireRotation = socketTransform.GetRotation().Rotator();
-
-		UWorld* const World = GetWorld();
-		if (World != NULL)
-		{
-			// spawn the projectile
-			World->SpawnActor<AZwentendorfProjectile>(SpawnLocation, FireRotation);
-		}
-
-		bCanFire = false;
-		World->GetTimerManager().SetTimer(TimerHandle_ShotTimerExpired, this, &AZwentendorfPawn::ShotTimerExpired, FireRate);
-
-		// try and play the sound if specified
-		if (FireSound != nullptr)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-		}
-
-		bCanFire = false;
-	}
-}
-
-void AZwentendorfPawn::ShotTimerExpired()
-{
-	bCanFire = true;
-}
-
 ////////////////////////////ActionBindings////////////////////////////
+
+void AZwentendorfPawn::LeftShoulder()
+{
+	m_CannonLeft->Activate();
+}
 
 void AZwentendorfPawn::RightShoulder()
 {
-	FireShot();
+	m_CannonRight->Activate();
 }
 

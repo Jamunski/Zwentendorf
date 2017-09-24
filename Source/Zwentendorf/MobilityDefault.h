@@ -11,16 +11,15 @@ class ZWENTENDORF_API AMobilityDefault : public AActor
 {
 	GENERATED_BODY()
 
-		/* The mesh component */
-		UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-		class UStaticMeshComponent* MeshComponent;
+	/* The mesh component */
+	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* MeshComponent;
 
 public:
 	AMobilityDefault();
 
 protected:
 	virtual void BeginPlay() override;
-
 
 public:
 	/** Returns MobilityMeshComponent subobject **/
