@@ -11,6 +11,7 @@
 #include "Engine/CollisionProfile.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshSocket.h"
+#include "UObject/ConstructorHelpers.h"
 
 const FName AZwentendorfPawn::MoveForwardBinding("MoveForward");
 const FName AZwentendorfPawn::MoveRightBinding("MoveRight");
@@ -30,10 +31,12 @@ AZwentendorfPawn::AZwentendorfPawn()
 {
 	UE_LOG(LogActor, Warning, TEXT("AZwentendorfPawn"));
 
-	USphereComponent* SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("RootComponent"));
-	RootComponent = SphereComponent;
-	SphereComponent->InitSphereRadius(30.0f); //JV-TODO: changing this removes my collision problems...
-	SphereComponent->SetCollisionProfileName(TEXT("Pawn"));
+	// Core Mesh
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Meshes/Character/Tasis/COR_Core.COR_Core"));
+	// Create the mesh component
+	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	RootComponent = MeshComponent;
+	MeshComponent->SetStaticMesh(Mesh.Object);
 
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -47,13 +50,12 @@ AZwentendorfPawn::AZwentendorfPawn()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	CameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;	// Camera does not rotate relative to arm
-
-	// Movement
-	MoveSpeed = 1000.0f;
 }
 
 void AZwentendorfPawn::PostInitializeComponents()
 {
+	UE_LOG(LogActor, Warning, TEXT("PostInitializeComponents"));
+
 	Super::PostInitializeComponents();
 
 	//Creating and attaching modules to sockets
@@ -62,19 +64,22 @@ void AZwentendorfPawn::PostInitializeComponents()
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			FVector location = FVector(0, 0, 0);
+			FVector location = FVector(0, 0, 10);
 			FRotator rotation = FRotator(0.0f);
 
+			//Chassis
+			m_Chassis = World->SpawnActor<AChassisDefault>();
+
 			//Mobility
-			m_Mobility = World->SpawnActor<AMobilityDefault>(location, rotation);
+			m_Mobility = World->SpawnActor<AMobilityDefault>(GetActorLocation(), GetActorRotation());
 
-			m_Mobility->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+			//Weapons
+			m_CannonLeft = World->SpawnActor<ACannon>();
+			m_CannonRight = World->SpawnActor<ACannon>();
 
-			if (m_Mobility != nullptr)
+			if (m_Chassis && m_Mobility && m_CannonLeft && m_CannonRight)
 			{
 				//Chassis
-				m_Chassis = World->SpawnActor<AChassisDefault>();
-
 				FName fnSckChassis = TEXT("SCK_Chassis");
 				if (m_Mobility->GetMeshComponent()->DoesSocketExist(fnSckChassis))
 				{
@@ -83,125 +88,192 @@ void AZwentendorfPawn::PostInitializeComponents()
 					m_Chassis->AttachToComponent(m_Mobility->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
 				}
 
-				//Weapon
-				if (m_Chassis != nullptr)
+				//Core
+				FName fnSckCore = TEXT("SCK_Core");
+				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckCore))
 				{
-					m_CannonLeft = World->SpawnActor<ACannon>();
+					UE_LOG(LogActor, Warning, TEXT("SCK_Core Exists"));
 
-					FName fnSckWeaponLeft = TEXT("SCK_WeaponLeft");
-					if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponLeft))
-					{
-						UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
-
-						m_CannonLeft->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
-					}
-
-					m_CannonRight = World->SpawnActor<ACannon>();
-
-					FName fnSckWeaponRight = TEXT("SCK_WeaponRight");
-					if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponRight))
-					{
-						UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
-
-						m_CannonRight->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
-					}
-
-					if (m_CannonLeft != nullptr && m_CannonRight != nullptr)
-					{
-						//JV-TODO: Review this - Ignore other meshes attached to this... Maybe there is a better way to do this???
-						m_Chassis->GetMeshComponent()->IgnoreActorWhenMoving(m_CannonLeft, true);
-						m_Chassis->GetMeshComponent()->IgnoreActorWhenMoving(m_Mobility, true);
-
-						m_CannonLeft->GetMeshComponent()->IgnoreActorWhenMoving(m_Chassis, true);
-						m_CannonLeft->GetMeshComponent()->IgnoreActorWhenMoving(m_Mobility, true);
-
-						m_CannonRight->GetMeshComponent()->IgnoreActorWhenMoving(m_Chassis, true);
-						m_CannonRight->GetMeshComponent()->IgnoreActorWhenMoving(m_Mobility, true);
-
-						m_Mobility->GetMeshComponent()->IgnoreActorWhenMoving(m_CannonLeft, true);
-						m_Mobility->GetMeshComponent()->IgnoreActorWhenMoving(m_CannonRight, true);
-						m_Mobility->GetMeshComponent()->IgnoreActorWhenMoving(m_Chassis, true);
-
-						//JV-TODO: Review this - Welding meshes together...Better?
-						//m_CannonLeft->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponLeft);
-						//m_CannonRight->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponRight);
-						//m_Chassis->GetMeshComponent()->WeldTo(m_Mobility->GetMeshComponent(), fnSckChassis);
-					}
+					AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckCore);
 				}
+
+				//Weapon
+				FName fnSckWeaponLeft = TEXT("SCK_WeaponLeft");
+				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponLeft))
+				{
+					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
+
+					m_CannonLeft->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
+				}
+
+				FName fnSckWeaponRight = TEXT("SCK_WeaponRight");
+				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponRight))
+				{
+					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
+
+					m_CannonRight->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
+				}
+
+				//Weld parts together...
+				m_CannonLeft->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponLeft);
+				m_CannonRight->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponRight);
+				m_Chassis->GetMeshComponent()->WeldTo(m_Mobility->GetMeshComponent(), fnSckChassis);
+				MeshComponent->WeldTo(m_Chassis->GetMeshComponent(), fnSckCore);
+
+				//JV-TODO: More Correct Hierarchy, results not ideal... Maybe this is the way to go, but I should use physicsConstraints instead to work as joints connecting these pieces together? Need to import later assets in order to get the correct sockets...
+				/*
+				//Mobility
+				FName fnSckMobility = TEXT("SCK_Mobility");
+				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckMobility))
+				{
+				UE_LOG(LogActor, Warning, TEXT("SCK_Mobility Exists"));
+
+				m_Mobility->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckMobility);
+				}
+
+				//Core
+				FName fnSckChassis = TEXT("SCK_Chassis");
+				if (MeshComponent->DoesSocketExist(fnSckChassis))
+				{
+				UE_LOG(LogActor, Warning, TEXT("SCK_Chassis Exists"));
+
+				m_Chassis->GetMeshComponent()->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
+				}
+
+				//Weapon
+				FName fnSckWeaponLeft = TEXT("SCK_WeaponLeft");
+				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponLeft))
+				{
+				UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
+
+				m_CannonLeft->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
+				}
+
+				FName fnSckWeaponRight = TEXT("SCK_WeaponRight");
+				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponRight))
+				{
+				UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
+
+				m_CannonRight->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
+				}
+
+				//Weld parts together...
+				m_Chassis->GetMeshComponent()->WeldTo(MeshComponent, fnSckChassis);
+				m_CannonLeft->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponLeft);
+				m_CannonRight->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponRight);
+				m_Mobility->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckMobility);
+
+				MeshComponent->SetSimulatePhysics(true);
+				MeshComponent->SetEnableGravity(true);
+				*/
 			}
 		}
 	}
 }
 
-void AZwentendorfPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+void AZwentendorfPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	check(PlayerInputComponent);
 
-	// set up gameplay axis bindings
-	PlayerInputComponent->BindAxis(MoveForwardBinding);
-	PlayerInputComponent->BindAxis(MoveRightBinding);
-	PlayerInputComponent->BindAxis(AimForwardBinding);
-	PlayerInputComponent->BindAxis(AimRightBinding);
+	SetupActionInput(PlayerInputComponent);
+	SetupAxisInput(PlayerInputComponent);
+	SetupAxisInputKeyboard(PlayerInputComponent);
+	SetupAxisInputGamepad(PlayerInputComponent);
+}
 
+void AZwentendorfPawn::SetupActionInput(UInputComponent* PlayerInputComponent)
+{
+	//JV-TODO:
 	// set up gameplay weapon bindings
 	PlayerInputComponent->BindAction(LeftShoulderBinding, IE_Pressed, this, &AZwentendorfPawn::LeftShoulder);
+	//PlayerInputComponent->BindAction(InteractBinding, IE_Released, this, &AMyCharacter::InteractReleased);
 	PlayerInputComponent->BindAction(RightShoulderBinding, IE_Pressed, this, &AZwentendorfPawn::RightShoulder);
+	//PlayerInputComponent->BindAction(InteractBinding, IE_Released, this, &AMyCharacter::InteractReleased);
 	PlayerInputComponent->BindAction(LeftTriggerBinding, IE_Pressed, this, &AZwentendorfPawn::LeftTrigger);
+	//PlayerInputComponent->BindAction(InteractBinding, IE_Released, this, &AMyCharacter::InteractReleased);
 	PlayerInputComponent->BindAction(RightTriggerBinding, IE_Pressed, this, &AZwentendorfPawn::RightTrigger);
+	//PlayerInputComponent->BindAction(InteractBinding, IE_Released, this, &AMyCharacter::InteractReleased);
 
-	// set up gameplay ability bindings
+	//// set up gameplay ability bindings
 	PlayerInputComponent->BindAction(InteractBinding, IE_Pressed, this, &AZwentendorfPawn::Interact);
 	PlayerInputComponent->BindAction(DodgeBinding, IE_Pressed, this, &AZwentendorfPawn::Dodge);
 	PlayerInputComponent->BindAction(AbilityXBinding, IE_Pressed, this, &AZwentendorfPawn::AbilityX);
 	PlayerInputComponent->BindAction(AbilityYBinding, IE_Pressed, this, &AZwentendorfPawn::AbilityY);
 }
 
+void AZwentendorfPawn::SetupAxisInput(UInputComponent* PlayerInputComponent)
+{
+	PlayerInputComponent->BindAxis(MoveForwardBinding, this, &AZwentendorfPawn::MoveForward);
+	PlayerInputComponent->BindAxis(MoveRightBinding, this, &AZwentendorfPawn::MoveRight);
+
+	PlayerInputComponent->BindAxis(AimForwardBinding);
+	PlayerInputComponent->BindAxis(AimRightBinding);
+}
+
+void AZwentendorfPawn::SetupAxisInputKeyboard(UInputComponent* PlayerInputComponent)
+{
+}
+
+void AZwentendorfPawn::SetupAxisInputGamepad(UInputComponent* PlayerInputComponent)
+{
+}
+
 void AZwentendorfPawn::Tick(float DeltaSeconds)
 {
-	// Find movement direction
-	const float ForwardValue = GetInputAxisValue(MoveForwardBinding);
-	const float RightValue = GetInputAxisValue(MoveRightBinding);
+	FVector movementVector = ConsumeMovementInputVector();
+	m_Mobility->CaclulateMovementInput(DeltaSeconds, movementVector);
+	CalculateAimInput();
+}
 
-	// Clamp max size so that (X=1, Y=1) doesn't cause faster movement in diagonal directions
-	const FVector MoveDirection = FVector(ForwardValue, RightValue, 0.f).GetClampedToMaxSize(1.0f);
-
-	// Calculate  movement
-	const FVector Movement = MoveDirection * MoveSpeed * DeltaSeconds;
-
-	// If non-zero size, move this actor
-	if (Movement.SizeSquared() > 0.0f)
-	{
-		FHitResult Hit(1.f);
-		RootComponent->K2_AddRelativeLocation(Movement, true, Hit, false);
-
-		if (Hit.IsValidBlockingHit())
-		{
-			const FVector Normal2D = Hit.Normal.GetSafeNormal2D();
-			const FVector Deflection = FVector::VectorPlaneProject(Movement, Normal2D) * (1.f - Hit.Time);
-			RootComponent->AddRelativeLocation(Deflection, true);
-		}
-	}
-
-	// Create fire direction vector
+void AZwentendorfPawn::CalculateAimInput()
+{
+	//// Create fire direction vector
 	const float AimForwardValue = GetInputAxisValue(AimForwardBinding);
 	const float AimRightValue = GetInputAxisValue(AimRightBinding);
 	const FVector AimDirection = FVector(AimForwardValue, AimRightValue, 0.f);
 
-	Aim(AimDirection);
-}
-
-void AZwentendorfPawn::Aim(FVector AimDirection)
-{
 	// If we are pressing aim stick in a direction
 	if (AimDirection.SizeSquared() > 0.0f)
 	{
 		// Rotate the player
 		const FRotator NewRotation = AimDirection.Rotation();
-		RootComponent->SetRelativeRotation(NewRotation);
+		m_Chassis->GetMeshComponent()->SetRelativeRotation(NewRotation); //JV-TODO: Review this.. maybe this function should be part of the chassis? Unless guns will also react to aim input???
 	}
 }
 
 ////////////////////////////ActionBindings////////////////////////////
+
+void AZwentendorfPawn::MoveForward(float Value)
+{
+	if ((Controller != NULL) && (Value != 0.0f))
+	{
+		UE_LOG(LogActor, Warning, TEXT("MoveForward-VALID"));
+
+		// find out which way is forward
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get forward vector and move in that direction 
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		AddMovementInput(Direction, Value);
+	}
+}
+
+void AZwentendorfPawn::MoveRight(float Value)
+{
+	if ((Controller != NULL) && (Value != 0.0f))
+	{
+		UE_LOG(LogActor, Warning, TEXT("MoveRight-VALID"));
+
+		// find out which way is right
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get right vector and move in that direction 
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(-Direction, Value);
+	}
+}
 
 void AZwentendorfPawn::LeftShoulder()
 {
@@ -212,4 +284,3 @@ void AZwentendorfPawn::RightShoulder()
 {
 	m_CannonRight->Activate();
 }
-

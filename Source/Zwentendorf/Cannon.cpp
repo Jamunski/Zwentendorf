@@ -19,14 +19,17 @@ ACannon::ACannon()
 	{
 		UE_LOG(LogActor, Warning, TEXT("ACannon"));
 
-		static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/TwinStick/Meshes/Tasis/WEA_Cannon.WEA_Cannon"));
+		static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Meshes/Character/Tasis/WEA_Cannon.WEA_Cannon"));
 		// Create the mesh component
 		MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 		RootComponent = MeshComponent;
 		MeshComponent->SetStaticMesh(Mesh.Object);
 
+		MeshComponent->SetSimulatePhysics(true);
+		MeshComponent->SetEnableGravity(true);
+
 		// Cache our sound effect
-		static ConstructorHelpers::FObjectFinder<USoundBase> FireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));
+		static ConstructorHelpers::FObjectFinder<USoundBase> FireAudio(TEXT("/Game/Audio/Weapon/TwinStickFire.TwinStickFire"));
 		FireSound = FireAudio.Object;
 
 		// Weapon

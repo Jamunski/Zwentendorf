@@ -18,6 +18,12 @@ class ZWENTENDORF_API AMobilityDefault : public AActor
 public:
 	AMobilityDefault();
 
+	/* The speed our ship moves around the level */
+	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
+		float MoveSpeed;
+
+	void CaclulateMovementInput(float DeltaSeconds, FVector movementVector);
+
 protected:
 	virtual void BeginPlay() override;
 

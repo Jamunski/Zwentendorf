@@ -16,6 +16,10 @@ class AZwentendorfPawn : public APawn
 {
 	GENERATED_BODY()
 
+		/* The mesh component */
+	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UStaticMeshComponent* MeshComponent;
+
 		/** The camera */
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* CameraComponent;
@@ -38,18 +42,11 @@ class AZwentendorfPawn : public APawn
 public:
 	AZwentendorfPawn();
 
-	/* The speed our ship moves around the level */
-	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
-		float MoveSpeed;
-
 	// Begin Actor Interface
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End Actor Interface
-
-	/* Aim in the specified direction */
-	void Aim(FVector AimDirection);
 
 	// Static names for axis bindings
 	static const FName MoveForwardBinding;
@@ -68,6 +65,16 @@ public:
 	static const FName AbilityYBinding;
 
 private:
+	void SetupActionInput(UInputComponent* PlayerInputComponent);
+	void SetupAxisInput(UInputComponent* PlayerInputComponent);
+	void SetupAxisInputKeyboard(UInputComponent* PlayerInputComponent);
+	void SetupAxisInputGamepad(UInputComponent* PlayerInputComponent);
+
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+
+	/* Aim in the specified direction */
+	void CalculateAimInput();
 
 	void LeftShoulder();
 	void RightShoulder();
@@ -80,6 +87,9 @@ private:
 	void AbilityY() {};
 
 public:
+	/** Returns Core MeshComponent subobject **/
+	FORCEINLINE class UStaticMeshComponent* GetMeshComponent() const { return MeshComponent; }
+
 	/** Returns CameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetCameraComponent() const { return CameraComponent; }
 	/** Returns CameraBoom subobject **/

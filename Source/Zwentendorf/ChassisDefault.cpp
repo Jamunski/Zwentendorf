@@ -11,11 +11,14 @@ AChassisDefault::AChassisDefault()
 	if (MeshComponent == nullptr)
 	{
 		UE_LOG(LogActor, Warning, TEXT("AChassisDefault"));
-		static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/TwinStick/Meshes/Tasis/CHA_Default.CHA_Default"));
+		static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Meshes/Character/Tasis/CHA_Default.CHA_Default"));
 		// Create the mesh component
 		MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 		RootComponent = MeshComponent;
 		MeshComponent->SetStaticMesh(Mesh.Object);
+
+		MeshComponent->SetSimulatePhysics(true);
+		MeshComponent->SetEnableGravity(true);
 	}
 }
 
