@@ -7,6 +7,12 @@
 #include "UObject/ConstructorHelpers.h"
 
 AChassisDefault::AChassisDefault()
+	: AChassisModule()
+{
+	InitializeMesh();
+}
+
+void AChassisDefault::InitializeMesh()
 {
 	if (MeshComponent == nullptr)
 	{
@@ -25,5 +31,4 @@ AChassisDefault::AChassisDefault()
 void AChassisDefault::BeginPlay()
 {
 	Super::BeginPlay();
-
 }

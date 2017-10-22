@@ -7,6 +7,15 @@
 #include "UObject/ConstructorHelpers.h"
 
 AMobilityDefault::AMobilityDefault()
+	: AMobilityModule()
+{
+	// Movement
+	InitializeMesh();
+
+	MoveSpeed = 1000.0f;
+}
+
+void AMobilityDefault::InitializeMesh()
 {
 	if (MeshComponent == nullptr)
 	{
@@ -20,9 +29,6 @@ AMobilityDefault::AMobilityDefault()
 
 		MeshComponent->SetSimulatePhysics(true);
 		MeshComponent->SetEnableGravity(true);
-
-		// Movement
-		MoveSpeed = 1000.0f;
 	}
 }
 
@@ -46,9 +52,6 @@ void AMobilityDefault::CaclulateMovementInput(float DeltaSeconds, FVector moveme
 		{
 			const FVector Normal2D = Hit.Normal.GetSafeNormal2D();
 			const FVector Deflection = FVector::VectorPlaneProject(Movement, Normal2D) * (1.f - Hit.Time);
-			//RootComponent->AddRelativeLocation(Deflection, true);
-			//m_Mobility->GetMeshComponent()->ComponentVelocity.Set(Deflection.X, Deflection.Y, Deflection.Z);
-
 		}
 	}
 }
