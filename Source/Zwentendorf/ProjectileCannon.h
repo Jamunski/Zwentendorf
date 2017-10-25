@@ -23,6 +23,10 @@ class AProjectileCannon : public AActor
 	UProjectileMovementComponent* ProjectileMovement;
 
 public:
+	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
+		float Damage;
+
+public:
 	AProjectileCannon();
 
 	/** Function to handle the projectile hitting something */

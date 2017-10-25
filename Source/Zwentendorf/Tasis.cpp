@@ -74,13 +74,18 @@ void ATasis::PostInitializeComponents()
 
 			//Chassis
 			m_Chassis = World->SpawnActor<AChassisDefault>();
+			m_Chassis->LinkSoul(this);
 
 			//Mobility
 			m_Mobility = World->SpawnActor<AMobilityDefault>(GetActorLocation(), GetActorRotation());
+			m_Mobility->LinkSoul(this);
 
 			//Weapons
 			m_WeaponLeft = World->SpawnActor<AWeaponCannon>();
+			m_WeaponLeft->LinkSoul(this);
+
 			m_WeaponRight = World->SpawnActor<AWeaponCannon>();
+			m_WeaponRight->LinkSoul(this);
 
 			if (m_Chassis && m_Mobility && m_WeaponLeft && m_WeaponRight)
 			{
@@ -230,9 +235,23 @@ void ATasis::Tick(float DeltaSeconds)
 	CalculateAimInput();
 }
 
+const float ATasis::GetHealthPoints()
+{
+	return m_Chassis->HealthPoints;
+}
+
+void ATasis::ApplyDamage(const float damage)
+{
+	m_Chassis->HealthPoints -= damage;
+}
+
+void ATasis::OnDeath()
+{
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+}
+
 void ATasis::CalculateAimInput()
 {
-	//// Create fire direction vector
 	const float AimForwardValue = GetInputAxisValue(AimForwardBinding);
 	const float AimRightValue = GetInputAxisValue(AimRightBinding);
 	const FVector AimDirection = FVector(AimForwardValue, AimRightValue, 0.f);
@@ -240,9 +259,9 @@ void ATasis::CalculateAimInput()
 	// If we are pressing aim stick in a direction
 	if (AimDirection.SizeSquared() > 0.0f)
 	{
-		// Rotate the player
 		const FRotator NewRotation = AimDirection.Rotation();
 		m_Chassis->GetMeshComponent()->SetRelativeRotation(NewRotation); //JV-TODO: Review this.. maybe this function should be part of the chassis? Unless guns will also react to aim input???
+		//m_Chassis->GetMeshComponent()->SetWorldRotation(NewRotation);
 	}
 }
 

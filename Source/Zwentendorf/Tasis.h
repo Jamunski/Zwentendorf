@@ -4,6 +4,7 @@
 
 #include "ChassisModule.h"
 #include "MobilityModule.h"
+#include "Soul.h"
 #include "WeaponModule.h"
 
 #include "CoreMinimal.h"
@@ -11,7 +12,7 @@
 #include "Tasis.generated.h"
 
 UCLASS(Blueprintable)
-class ATasis : public APawn
+class ATasis : public ASoul
 {
 	GENERATED_BODY()
 
@@ -46,6 +47,13 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End Actor Interface
+
+	// Begin Soul Interface
+	virtual const float GetHealthPoints() override;
+	virtual void ApplyDamage(const float damage) override;
+
+	virtual void OnDeath() override;
+	// End Soul Interface
 
 	// Static names for axis bindings
 	static const FName MoveForwardBinding;

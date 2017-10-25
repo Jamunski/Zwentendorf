@@ -10,6 +10,11 @@ AChassisDefault::AChassisDefault()
 	: AChassisModule()
 {
 	InitializeMesh();
+
+	//JV-TODO: Create a function in ChassisModule to do this sort of thing at some point
+	//Initialize health points
+	MaximumHealthPoints = 1000.0f;
+	HealthPoints = MaximumHealthPoints;
 }
 
 void AChassisDefault::InitializeMesh()
