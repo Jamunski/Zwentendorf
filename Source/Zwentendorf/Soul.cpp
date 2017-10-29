@@ -13,7 +13,7 @@ float ASoul::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 
 	if (DamageAmount > 0.001f)
 	{
-		ApplyDamage(DamageAmount);
+		healthPoints = ApplyDamage(DamageAmount);
 
 		if (healthPoints <= 0.0f)
 		{

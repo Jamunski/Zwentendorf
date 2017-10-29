@@ -2,21 +2,21 @@
 
 #include "Tasis.h"
 
-#include "Camera/CameraComponent.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/SphereComponent.h"
-#include "Components/InputComponent.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Engine/CollisionProfile.h"
-#include "Engine/StaticMesh.h"
-#include "Engine/StaticMeshSocket.h"
-#include "UObject/ConstructorHelpers.h"
-
 //JV-TODO: TEMP PLEASE REMOVE ME...
 #include "WeaponCannon.h"
 #include "ChassisDefault.h"
 #include "MobilityDefault.h"
+
+#include "Camera/CameraComponent.h"
+#include "Components/InputComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Engine/CollisionProfile.h"
+#include "Engine/StaticMesh.h"
+#include "Engine/StaticMeshSocket.h"
+#include "Kismet/GameplayStatics.h"
+#include "UObject/ConstructorHelpers.h"
 
 const FName ATasis::MoveForwardBinding("MoveForward");
 const FName ATasis::MoveRightBinding("MoveRight");
@@ -46,7 +46,7 @@ ATasis::ATasis()
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->bAbsoluteRotation = true; // Don't want arm to rotate when ship does
+	CameraBoom->bAbsoluteRotation = true; // Don't want arm to rotate when player does
 	CameraBoom->TargetArmLength = 1200.f;
 	CameraBoom->RelativeRotation = FRotator(-80.f, 0.f, 0.f);
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
@@ -240,9 +240,11 @@ const float ATasis::GetHealthPoints()
 	return m_Chassis->HealthPoints;
 }
 
-void ATasis::ApplyDamage(const float damage)
+float ATasis::ApplyDamage(const float damage)
 {
 	m_Chassis->HealthPoints -= damage;
+
+	return m_Chassis->HealthPoints;
 }
 
 void ATasis::OnDeath()
@@ -271,8 +273,6 @@ void ATasis::MoveForward(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
-		UE_LOG(LogActor, Warning, TEXT("MoveForward-VALID"));
-
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -287,8 +287,6 @@ void ATasis::MoveRight(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
-		UE_LOG(LogActor, Warning, TEXT("MoveRight-VALID"));
-
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);

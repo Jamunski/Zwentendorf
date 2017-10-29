@@ -50,7 +50,7 @@ public:
 
 	// Begin Soul Interface
 	virtual const float GetHealthPoints() override;
-	virtual void ApplyDamage(const float damage) override;
+	virtual float ApplyDamage(const float damage) override;
 
 	virtual void OnDeath() override;
 	// End Soul Interface

@@ -14,17 +14,17 @@ class ZWENTENDORF_API ASoul : public APawn
 public:
 	ASoul();
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual const float GetHealthPoints() PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f ;);
 
-	virtual void ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::GetHealthPoints, ;);
+	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f ;);
 
 protected:
 	void HandleDeath();
 
 	/*
-	brief implement to add custom death logit
+	brief implement to add custom death logic
 	*/
 	virtual void OnDeath() {};
 };
