@@ -18,7 +18,6 @@ ABobAIController::ABobAIController()
 	BlackboardComp = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComp"));
 
 	LocationToGoKey = "LocationToGo";
-
 }
 
 void ABobAIController::Possess(APawn* Pawn)
@@ -27,6 +26,10 @@ void ABobAIController::Possess(APawn* Pawn)
 
 	//Get the possessed Character and check if it's my own AI Character
 	ABob* Bob = Cast<ABob>(Pawn);
+
+	PossessedSoul = Bob;
+
+	//StrategyMap = PossessedSoul->GetStrategies();
 
 	if (Bob)
 	{
@@ -44,5 +47,18 @@ void ABobAIController::Possess(APawn* Pawn)
 
 		//Start the behavior tree which corresponds to the specific character
 		BehaviorComp->StartTree(*Bob->BehaviorTree);
+	}
+}
+
+void ABobAIController::SetTarget(AActor *Target)
+{
+	TargetActor = Target;
+}
+
+void ABobAIController::ExecuteStrategy(EStrategyType strategy)
+{
+	if (PossessedSoul)
+	{
+		//StrategyMap[strategy]->Execute();
 	}
 }

@@ -6,7 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "Soul.generated.h"
 
-UCLASS()
+UCLASS(abstract)
 class ZWENTENDORF_API ASoul : public APawn
 {
 	GENERATED_BODY()

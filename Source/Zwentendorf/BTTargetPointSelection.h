@@ -16,5 +16,4 @@ class ZWENTENDORF_API UBTTargetPointSelection : public UBTTaskNode
 	
 	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	
 };
