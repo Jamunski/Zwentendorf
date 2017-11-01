@@ -36,6 +36,8 @@ ATasis::ATasis()
 {
 	UE_LOG(LogActor, Warning, TEXT("ATasis"));
 
+	//InitializeSoul();
+
 	// Core Mesh
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Meshes/Character/Tasis/COR_Core.COR_Core"));
 	// Create the mesh component

@@ -16,10 +16,6 @@ class ATasis : public ASoul
 {
 	GENERATED_BODY()
 
-	/* The mesh component */
-	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* MeshComponent;
-
 	/** The camera */
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* CameraComponent;
@@ -94,9 +90,6 @@ private:
 	void AbilityY() {};
 
 public:
-	/** Returns Core MeshComponent subobject **/
-	FORCEINLINE class UStaticMeshComponent* GetMeshComponent() const { return MeshComponent; }
-
 	/** Returns CameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetCameraComponent() const { return CameraComponent; }
 	/** Returns CameraBoom subobject **/

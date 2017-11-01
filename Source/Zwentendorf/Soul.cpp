@@ -2,9 +2,22 @@
 
 #include "Soul.h"
 
+#include "Components/SceneComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "UObject/ConstructorHelpers.h"
 
 ASoul::ASoul()
 {
+}
+
+void ASoul::InitializeSoul()
+{
+	// Bob Mesh
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Meshes/Character/Enemy/Bob.Bob"));
+	// Create the mesh component
+	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	RootComponent = MeshComponent;
+	MeshComponent->SetStaticMesh(Mesh.Object);
 }
 
 float ASoul::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)

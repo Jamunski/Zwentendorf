@@ -12,7 +12,18 @@ class ZWENTENDORF_API ASoul : public APawn
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, Category = "AI")
+	class UBehaviorTree* BehaviorTree;
+
+	/* The mesh component */
+	UPROPERTY(Category = "Mesh", EditAnywhere)
+		class UStaticMeshComponent* MeshComponent;
+
+public:
 	ASoul();
+
+	//CALL IN DERIVED
+	virtual void InitializeSoul();
 
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -27,4 +38,7 @@ protected:
 	brief implement to add custom death logic
 	*/
 	virtual void OnDeath() {};
+
+public:
+	FORCEINLINE class UStaticMeshComponent* GetMeshComponent() const { return MeshComponent; }
 };

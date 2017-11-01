@@ -4,12 +4,12 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 
-#include "BobAIController.h"
+#include "SoulAIController.h"
 #include "BotTargetPoint.h"
 
 EBTNodeResult::Type UBTTargetPointSelection::ExecuteTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)
 {
-	ABobAIController* AICon = Cast<ABobAIController>(OwnerComp.GetAIOwner());
+	ASoulAIController* AICon = Cast<ASoulAIController>(OwnerComp.GetAIOwner());
 
 	/*If the Controller is valid:
 	1)Get the Blackboard Component and the Current Point of the bot
