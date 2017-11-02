@@ -43,3 +43,8 @@ void ASoul::HandleDeath()
 
 	OnDeath();
 }
+
+bool ASoul::ExecuteStrategy(EStrategyType strategy)
+{
+	return StrategyMap[strategy]->ExecuteStrategy();
+}

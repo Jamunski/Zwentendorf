@@ -5,20 +5,10 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 
 #include "Soul.h"
-#include "Strategy.h"
 
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "SoulAIController.generated.h"
-
-UENUM(BlueprintType)
-enum class EStrategyType : uint8
-{
-	UNKNOWN			UMETA(DisplayName = "UNKNOWN"),
-	ENGAGE			UMETA(DisplayName = "ENGAGE"), //Attacking a target, IE: Kamikaze
-	LOCATE_TARGET	UMETA(DisplayName = "LOCATE_TARGET"), //How to find target, IE: Patrol
-	SURVIVAL		UMETA(DisplayName = "SURVIVAL") //In danger, IE: Look for healing
-};
 
 UCLASS()
 class ZWENTENDORF_API ASoulAIController : public AAIController
@@ -31,9 +21,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	AActor *TargetActor;
-
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	TMap<EStrategyType, UStrategy*> StrategyMap;
 
 	/*Behavior tree comp ref*/
 	UBehaviorTreeComponent* BehaviorComp;

@@ -2,9 +2,20 @@
 
 #pragma once
 
+#include "Strategy.h"
+
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Soul.generated.h"
+
+UENUM(BlueprintType)
+enum class EStrategyType : uint8
+{
+	UNKNOWN			UMETA(DisplayName = "UNKNOWN"),
+	ENGAGE			UMETA(DisplayName = "ENGAGE"), //Attacking a target, IE: Kamikaze
+	LOCATE_TARGET	UMETA(DisplayName = "LOCATE_TARGET"), //How to find target, IE: Patrol
+	SURVIVAL		UMETA(DisplayName = "SURVIVAL") //In danger, IE: Look for healing
+};
 
 UCLASS(abstract)
 class ZWENTENDORF_API ASoul : public APawn
@@ -19,6 +30,10 @@ public:
 	UPROPERTY(Category = "Mesh", EditAnywhere)
 		class UStaticMeshComponent* MeshComponent;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	TMap<EStrategyType, UStrategy*> StrategyMap;
+
 public:
 	ASoul();
 
@@ -30,6 +45,8 @@ public:
 	virtual const float GetHealthPoints() PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f ;);
 
 	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f ;);
+
+	virtual bool ExecuteStrategy(EStrategyType strategy);
 
 protected:
 	void HandleDeath();

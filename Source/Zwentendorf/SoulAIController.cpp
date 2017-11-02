@@ -26,8 +26,6 @@ void ASoulAIController::Possess(APawn* Pawn)
 	//Get the possessed Character and check if it's my own AI Character
 	PossessedSoul = Cast<ASoul>(Pawn);
 
-	//StrategyMap = PossessedSoul->GetStrategies();
-
 	if (PossessedSoul)
 	{
 		//If the blackboard is valid initialize the blackboard for the corresponding behavior tree
@@ -56,6 +54,6 @@ void ASoulAIController::ExecuteStrategy(EStrategyType strategy)
 {
 	if (PossessedSoul)
 	{
-		//StrategyMap[strategy]->Execute();
+		auto strats = PossessedSoul->ExecuteStrategy(strategy);
 	}
 }
