@@ -22,5 +22,5 @@ public:
 public:
 	AMobilityModule();
 
-	virtual void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) PURE_VIRTUAL(AWeaponModule::Activate, ;);
+	virtual void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) PURE_VIRTUAL(AMobilityModule::CaclulateMovementInput, ;);
 };

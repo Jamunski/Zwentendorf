@@ -8,16 +8,24 @@
 
 ASoul::ASoul()
 {
+	InitializeSoul();
 }
 
 void ASoul::InitializeSoul()
 {
-	// Bob Mesh
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Meshes/Character/Enemy/Bob.Bob"));
-	// Create the mesh component
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	RootComponent = MeshComponent;
-	MeshComponent->SetStaticMesh(Mesh.Object);
+}
+
+void ASoul::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+	UE_LOG(LogActor, Warning, TEXT("PostEditChangeProperty"));
+	if (Mesh)
+	{
+		UE_LOG(LogActor, Warning, TEXT("Mesh Valid"));
+		MeshComponent->SetStaticMesh(Mesh);
+		RootComponent = MeshComponent;
+	}
 }
 
 float ASoul::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -39,8 +47,6 @@ float ASoul::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 
 void ASoul::HandleDeath()
 {
-	//Logic goes here...
-
 	OnDeath();
 }
 

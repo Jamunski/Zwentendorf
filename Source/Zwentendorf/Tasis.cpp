@@ -18,32 +18,15 @@
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
-const FName ATasis::MoveForwardBinding("MoveForward");
-const FName ATasis::MoveRightBinding("MoveRight");
-const FName ATasis::AimForwardBinding("AimForward");
-const FName ATasis::AimRightBinding("AimRight");
-
-const FName ATasis::LeftShoulderBinding("Weapon-LeftShoulder");
-const FName ATasis::RightShoulderBinding("Weapon-RightShoulder");
-const FName ATasis::LeftTriggerBinding("Weapon-LeftTrigger");
-const FName ATasis::RightTriggerBinding("Weapon-RightTrigger");
-const FName ATasis::InteractBinding("Interact");
-const FName ATasis::DodgeBinding("Dodge");
-const FName ATasis::AbilityXBinding("Ability-X");
-const FName ATasis::AbilityYBinding("Ability-Y");
-
 ATasis::ATasis()
 {
 	UE_LOG(LogActor, Warning, TEXT("ATasis"));
 
-	//InitializeSoul();
-
-	// Core Mesh
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Meshes/Character/Tasis/COR_Core.COR_Core"));
 	// Create the mesh component
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	RootComponent = MeshComponent;
-	MeshComponent->SetStaticMesh(Mesh.Object);
+	if (MeshComponent)
+	{
+		RootComponent = MeshComponent;
+	}
 
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -53,7 +36,7 @@ ATasis::ATasis()
 	CameraBoom->RelativeRotation = FRotator(-80.f, 0.f, 0.f);
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 
-										  // Create a camera...
+	// Create a camera...
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	CameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;	// Camera does not rotate relative to arm
@@ -130,7 +113,10 @@ void ATasis::PostInitializeComponents()
 				m_WeaponLeft->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponLeft);
 				m_WeaponRight->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponRight);
 				m_Chassis->GetMeshComponent()->WeldTo(m_Mobility->GetMeshComponent(), fnSckChassis);
-				MeshComponent->WeldTo(m_Chassis->GetMeshComponent(), fnSckCore);
+				if (MeshComponent)
+				{
+					MeshComponent->WeldTo(m_Chassis->GetMeshComponent(), fnSckCore);
+				}
 
 				//JV-TODO: More Correct Hierarchy, results not ideal... Maybe this is the way to go, but I should use physicsConstraints instead to work as joints connecting these pieces together? Need to import later assets in order to get the correct sockets...
 				/*
@@ -183,128 +169,76 @@ void ATasis::PostInitializeComponents()
 	}
 }
 
-void ATasis::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	check(PlayerInputComponent);
-
-	SetupActionInput(PlayerInputComponent);
-	SetupAxisInput(PlayerInputComponent);
-	SetupAxisInputKeyboard(PlayerInputComponent);
-	SetupAxisInputGamepad(PlayerInputComponent);
-}
-
-void ATasis::SetupActionInput(UInputComponent* PlayerInputComponent)
-{
-	//JV-TODO:
-	// set up gameplay weapon bindings
-	PlayerInputComponent->BindAction(LeftShoulderBinding, IE_Pressed, this, &ATasis::LeftShoulder);
-	//PlayerInputComponent->BindAction(InteractBinding, IE_Released, this, &AMyCharacter::InteractReleased);
-	PlayerInputComponent->BindAction(RightShoulderBinding, IE_Pressed, this, &ATasis::RightShoulder);
-	//PlayerInputComponent->BindAction(InteractBinding, IE_Released, this, &AMyCharacter::InteractReleased);
-	PlayerInputComponent->BindAction(LeftTriggerBinding, IE_Pressed, this, &ATasis::LeftTrigger);
-	//PlayerInputComponent->BindAction(InteractBinding, IE_Released, this, &AMyCharacter::InteractReleased);
-	PlayerInputComponent->BindAction(RightTriggerBinding, IE_Pressed, this, &ATasis::RightTrigger);
-	//PlayerInputComponent->BindAction(InteractBinding, IE_Released, this, &AMyCharacter::InteractReleased);
-
-	//// set up gameplay ability bindings
-	PlayerInputComponent->BindAction(InteractBinding, IE_Pressed, this, &ATasis::Interact);
-	PlayerInputComponent->BindAction(DodgeBinding, IE_Pressed, this, &ATasis::Dodge);
-	PlayerInputComponent->BindAction(AbilityXBinding, IE_Pressed, this, &ATasis::AbilityX);
-	PlayerInputComponent->BindAction(AbilityYBinding, IE_Pressed, this, &ATasis::AbilityY);
-}
-
-void ATasis::SetupAxisInput(UInputComponent* PlayerInputComponent)
-{
-	PlayerInputComponent->BindAxis(MoveForwardBinding, this, &ATasis::MoveForward);
-	PlayerInputComponent->BindAxis(MoveRightBinding, this, &ATasis::MoveRight);
-
-	PlayerInputComponent->BindAxis(AimForwardBinding);
-	PlayerInputComponent->BindAxis(AimRightBinding);
-}
-
-void ATasis::SetupAxisInputKeyboard(UInputComponent* PlayerInputComponent)
-{
-}
-
-void ATasis::SetupAxisInputGamepad(UInputComponent* PlayerInputComponent)
-{
-}
-
 void ATasis::Tick(float DeltaSeconds)
 {
-	FVector movementVector = ConsumeMovementInputVector();
-	m_Mobility->CaclulateMovementInput(DeltaSeconds, movementVector);
-	CalculateAimInput();
+	Super::Tick(DeltaSeconds);
 }
 
 const float ATasis::GetHealthPoints()
 {
-	return m_Chassis->HealthPoints;
+	if (m_Chassis)
+	{
+		return m_Chassis->HealthPoints;
+	}
+	return -1;
 }
 
 float ATasis::ApplyDamage(const float damage)
 {
-	m_Chassis->HealthPoints -= damage;
+	if (m_Chassis)
+	{
+		m_Chassis->HealthPoints -= damage;
 
-	return m_Chassis->HealthPoints;
+		return m_Chassis->HealthPoints;
+	}
+
+	return -1;
 }
 
 void ATasis::OnDeath()
 {
-	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->RestartLevel();
+	//Another way to restart the level...
+	//UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 }
 
-void ATasis::CalculateAimInput()
+void ATasis::CaclulateMovementInput(float DeltaSeconds, FVector movementVector)
 {
-	const float AimForwardValue = GetInputAxisValue(AimForwardBinding);
-	const float AimRightValue = GetInputAxisValue(AimRightBinding);
-	const FVector AimDirection = FVector(AimForwardValue, AimRightValue, 0.f);
+	if (m_Mobility)
+	{
+		m_Mobility->CaclulateMovementInput(DeltaSeconds, movementVector);
+	}
+}
+
+void ATasis::CalculateAimInput(float DeltaSeconds, FVector aimVector)
+{
+	//This logic may belong in the Chassis module, similar to movement in the mobility module
 
 	// If we are pressing aim stick in a direction
-	if (AimDirection.SizeSquared() > 0.0f)
+	if (aimVector.SizeSquared() > 0.0f)
 	{
-		const FRotator NewRotation = AimDirection.Rotation();
-		m_Chassis->GetMeshComponent()->SetRelativeRotation(NewRotation); //JV-TODO: Review this.. maybe this function should be part of the chassis? Unless guns will also react to aim input???
-		//m_Chassis->GetMeshComponent()->SetWorldRotation(NewRotation);
+		const FRotator NewRotation = aimVector.Rotation();
+		if (m_Chassis)
+		{
+			m_Chassis->GetMeshComponent()->SetRelativeRotation(NewRotation);
+		}
 	}
 }
 
 ////////////////////////////ActionBindings////////////////////////////
 
-void ATasis::MoveForward(float Value)
-{
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector and move in that direction 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		AddMovementInput(Direction, Value);
-	}
-}
-
-void ATasis::MoveRight(float Value)
-{
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get right vector and move in that direction 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(-Direction, Value);
-	}
-}
-
 void ATasis::LeftShoulder()
 {
-	m_WeaponLeft->Activate();
+	if (m_WeaponLeft)
+	{
+		m_WeaponLeft->Activate();
+	}
 }
 
 void ATasis::RightShoulder()
 {
-	m_WeaponRight->Activate();
+	if (m_WeaponRight)
+	{
+		m_WeaponRight->Activate();
+	}
 }

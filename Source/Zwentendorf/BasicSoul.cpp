@@ -10,8 +10,6 @@
 ABasicSoul::ABasicSoul()
 	: ASoul()
 {
-	InitializeSoul();
-
 	UFloatingPawnMovement *movementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MovementComponent"));
 }
 

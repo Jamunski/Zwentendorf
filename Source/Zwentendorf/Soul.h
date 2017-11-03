@@ -27,8 +27,11 @@ public:
 	class UBehaviorTree* BehaviorTree;
 
 	/* The mesh component */
-	UPROPERTY(Category = "Mesh", EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Mesh")
 		class UStaticMeshComponent* MeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+		class UStaticMesh* Mesh;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
@@ -40,6 +43,8 @@ public:
 	//CALL IN DERIVED
 	virtual void InitializeSoul();
 
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual const float GetHealthPoints() PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f ;);
@@ -47,6 +52,20 @@ public:
 	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f ;);
 
 	virtual bool ExecuteStrategy(EStrategyType strategy);
+
+	//Soul actions
+	virtual void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) {};
+	virtual void CalculateAimInput(float DeltaSeconds, FVector aimVector) {};
+
+	virtual void LeftShoulder() {};
+	virtual void RightShoulder() {};
+	virtual void LeftTrigger() {};
+	virtual void RightTrigger() {};
+
+	virtual void Interact() {};
+	virtual void Dodge() {};
+	virtual void AbilityX() {};
+	virtual void AbilityY() {};
 
 protected:
 	void HandleDeath();

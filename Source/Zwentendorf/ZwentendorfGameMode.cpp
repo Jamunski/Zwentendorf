@@ -2,10 +2,13 @@
 
 #include "ZwentendorfGameMode.h"
 #include "Tasis.h"
+#include "SoulPlayerController.h"
 
 AZwentendorfGameMode::AZwentendorfGameMode()
 {
 	// set default pawn class to our character class
 	DefaultPawnClass = ATasis::StaticClass();
+
+	PlayerControllerClass = ASoulPlayerController::StaticClass();
 }
 

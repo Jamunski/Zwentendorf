@@ -34,14 +34,12 @@ class ATasis : public ASoul
 	UPROPERTY(Category = Module, EditAnywhere)
 		AWeaponModule* m_WeaponRight;
 
-
 public:
 	ATasis();
 
 	// Begin Actor Interface
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End Actor Interface
 
 	// Begin Soul Interface
@@ -49,45 +47,20 @@ public:
 	virtual float ApplyDamage(const float damage) override;
 
 	virtual void OnDeath() override;
+
+	void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) override;
+	void CalculateAimInput(float DeltaSeconds, FVector aimVector) override;
+
+	void LeftShoulder() override;
+	void RightShoulder() override;
+	void LeftTrigger() override {};
+	void RightTrigger() override {};
+
+	void Interact() override {};
+	void Dodge() override {};
+	void AbilityX() override {};
+	void AbilityY() override {};
 	// End Soul Interface
-
-	// Static names for axis bindings
-	static const FName MoveForwardBinding;
-	static const FName MoveRightBinding;
-	static const FName AimForwardBinding;
-	static const FName AimRightBinding;
-
-	// Static names for action bindings
-	static const FName LeftShoulderBinding;
-	static const FName RightShoulderBinding;
-	static const FName LeftTriggerBinding;
-	static const FName RightTriggerBinding;
-	static const FName InteractBinding;
-	static const FName DodgeBinding;
-	static const FName AbilityXBinding;
-	static const FName AbilityYBinding;
-
-private:
-	void SetupActionInput(UInputComponent* PlayerInputComponent);
-	void SetupAxisInput(UInputComponent* PlayerInputComponent);
-	void SetupAxisInputKeyboard(UInputComponent* PlayerInputComponent);
-	void SetupAxisInputGamepad(UInputComponent* PlayerInputComponent);
-
-	void MoveForward(float Value);
-	void MoveRight(float Value);
-
-	/* Aim in the specified direction */
-	void CalculateAimInput();
-
-	void LeftShoulder();
-	void RightShoulder();
-	void LeftTrigger() {};
-	void RightTrigger() {};
-
-	void Interact() {};
-	void Dodge() {};
-	void AbilityX() {};
-	void AbilityY() {};
 
 public:
 	/** Returns CameraComponent subobject **/
