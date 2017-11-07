@@ -34,8 +34,8 @@ public:
 		class UStaticMesh* Mesh;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	TMap<EStrategyType, UStrategy*> StrategyMap;
+	UPROPERTY(EditAnywhere, Category = "AI")
+	TMap<EStrategyType, TSubclassOf<UStrategy> > StrategyMap;
 
 public:
 	ASoul();
@@ -51,7 +51,7 @@ public:
 
 	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f ;);
 
-	virtual bool ExecuteStrategy(EStrategyType strategy);
+	virtual bool ExecuteStrategy(EStrategyType strategyType);
 
 	//Soul actions
 	virtual void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) {};

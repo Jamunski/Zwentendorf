@@ -54,6 +54,6 @@ void ASoulAIController::ExecuteStrategy(EStrategyType strategy)
 {
 	if (PossessedSoul)
 	{
-		auto strats = PossessedSoul->ExecuteStrategy(strategy);
+		bool bSuccess = PossessedSoul->ExecuteStrategy(strategy);
 	}
 }

@@ -3,7 +3,12 @@
 #include "BobStrategy.h"
 
 
-const bool UBobStrategy::ExecuteStrategy()
+UBobStrategy::UBobStrategy()
+	: UStrategy()
+{
+}
+
+const bool UBobStrategy::ExecuteStrategy(ASoulAIController *soulAIController)
 {
 	bool bSuccess = false;
 

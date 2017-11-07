@@ -2,6 +2,8 @@
 
 #include "Soul.h"
 
+#include "SoulAIController.h"
+
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "UObject/ConstructorHelpers.h"
@@ -50,7 +52,23 @@ void ASoul::HandleDeath()
 	OnDeath();
 }
 
-bool ASoul::ExecuteStrategy(EStrategyType strategy)
+bool ASoul::ExecuteStrategy(EStrategyType strategyType)
 {
-	return StrategyMap[strategy]->ExecuteStrategy();
+	if (GetController() && GetController()->IsA(ASoulAIController
+		::StaticClass()))
+	{
+		ASoulAIController *aiController = Cast<ASoulAIController>(GetController());
+		
+		if (aiController && StrategyMap.Contains(strategyType))
+		{
+			UStrategy *strategy = StrategyMap[strategyType].GetDefaultObject();
+			if (strategy)
+			{
+				//Pass the AI controller into the function...
+				return strategy->ExecuteStrategy(aiController);
+			}
+		}
+	}
+
+	return false;
 }

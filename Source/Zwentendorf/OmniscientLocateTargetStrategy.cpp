@@ -1,0 +1,36 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "OmniscientLocateTargetStrategy.h"
+
+#include "SoulAIController.h"
+
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/GameplayStatics.h"
+
+UOmniscientLocateTargetStrategy::UOmniscientLocateTargetStrategy()
+	: UStrategy()
+{
+}
+
+const bool UOmniscientLocateTargetStrategy::ExecuteStrategy(ASoulAIController *soulAIController)
+{
+	bool bSuccess = false;
+
+	UE_LOG(LogActor, Warning, TEXT("UOmniscientLocateTargetStrategy::ExecuteStrategy"));
+
+	// This will crash since there is no context object for this UObject class. Normally a context object is passed into this class on construction, however I don't know when this class is constructed so I don't know when I can pass such an object :::::: https://answers.unrealengine.com/questions/480818/how-to-use-getworld-from-uobject-correctly.html
+	AActor *targetActor = UGameplayStatics::GetPlayerPawn(soulAIController->GetWorld(), 0);
+
+	if (soulAIController && targetActor)
+	{
+		UBlackboardComponent* BlackboardComp = soulAIController->GetBlackboardComp();
+
+		AActor *targetActor = UGameplayStatics::GetPlayerPawn(soulAIController->GetWorld(), 0);
+
+		BlackboardComp->SetValueAsObject("TargetActor", targetActor);
+
+		bSuccess = true;
+	}
+
+	return bSuccess;
+}

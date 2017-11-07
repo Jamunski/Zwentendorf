@@ -2,7 +2,10 @@
 
 #include "Strategy.h"
 
+#include "SoulAIController.h"
+
 
 UStrategy::UStrategy()
+	: UObject()
 {
 }

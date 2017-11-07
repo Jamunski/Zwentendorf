@@ -40,7 +40,7 @@ void AMobilityDefault::BeginPlay()
 void AMobilityDefault::CaclulateMovementInput(float DeltaSeconds, FVector movementVector)
 {
 	// Calculate  movement
-	const FVector Movement = movementVector * MoveSpeed * DeltaSeconds;
+	const FVector Movement = movementVector.ClampMaxSize(1.0f) * MoveSpeed * DeltaSeconds;
 
 	// If non-zero size, move this actor
 	if (Movement.SizeSquared() > 0.0f)

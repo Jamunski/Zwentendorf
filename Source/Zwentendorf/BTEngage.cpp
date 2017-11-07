@@ -8,8 +8,6 @@
 
 EBTNodeResult::Type UBTEngage::ExecuteTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)
 {
-	//JV-TODO: Get Engagement Strategy from the soul??? This will allow for a generic BT task for any AI to extend
-
 	ASoulAIController* AICon = Cast<ASoulAIController>(OwnerComp.GetAIOwner());
 
 	if (AICon)
@@ -22,6 +20,10 @@ EBTNodeResult::Type UBTEngage::ExecuteTask(UBehaviorTreeComponent & OwnerComp, u
 		{
 			AICon->ExecuteStrategy(EStrategyType::ENGAGE);
 			return EBTNodeResult::Succeeded;
+		}
+		else
+		{
+			UE_LOG(LogActor, Error, TEXT("UBTEngage::ExecuteTask - Target Actor not set, check if behaviour tree calls locateTarget before engage"));
 		}
 	}
 

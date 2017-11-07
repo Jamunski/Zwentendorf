@@ -9,11 +9,13 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class ZWENTENDORF_API UBobStrategy : public UStrategy
 {
 	GENERATED_BODY()
 	
 public:
-	virtual const bool ExecuteStrategy() override;
+	UBobStrategy();
+
+	virtual const bool ExecuteStrategy(ASoulAIController *soulAIController) override;
 };

@@ -6,7 +6,9 @@
 #include "UObject/NoExportTypes.h"
 #include "Strategy.generated.h"
 
-UCLASS(abstract)
+class ASoulAIController;
+
+UCLASS(abstract, BlueprintType, Blueprintable)
 class ZWENTENDORF_API UStrategy : public UObject
 {
 	GENERATED_BODY()
@@ -14,5 +16,5 @@ class ZWENTENDORF_API UStrategy : public UObject
 public:
 	UStrategy();
 
-	virtual const bool ExecuteStrategy() PURE_VIRTUAL(UStrategy::ExecuteStrategy, return false;);
+	virtual const bool ExecuteStrategy(ASoulAIController *soulAIController) PURE_VIRTUAL(UStrategy::ExecuteStrategy, return false;);
 };
