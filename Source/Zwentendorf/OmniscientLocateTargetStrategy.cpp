@@ -18,18 +18,20 @@ const bool UOmniscientLocateTargetStrategy::ExecuteStrategy(ASoulAIController *s
 
 	UE_LOG(LogActor, Warning, TEXT("UOmniscientLocateTargetStrategy::ExecuteStrategy"));
 
-	// This will crash since there is no context object for this UObject class. Normally a context object is passed into this class on construction, however I don't know when this class is constructed so I don't know when I can pass such an object :::::: https://answers.unrealengine.com/questions/480818/how-to-use-getworld-from-uobject-correctly.html
-	AActor *targetActor = UGameplayStatics::GetPlayerPawn(soulAIController->GetWorld(), 0);
-
-	if (soulAIController && targetActor)
+	if (soulAIController)
 	{
-		UBlackboardComponent* BlackboardComp = soulAIController->GetBlackboardComp();
-
 		AActor *targetActor = UGameplayStatics::GetPlayerPawn(soulAIController->GetWorld(), 0);
 
-		BlackboardComp->SetValueAsObject("TargetActor", targetActor);
+		if (targetActor)
+		{
+			UBlackboardComponent* BlackboardComp = soulAIController->GetBlackboardComp();
 
-		bSuccess = true;
+			AActor *targetActor = UGameplayStatics::GetPlayerPawn(soulAIController->GetWorld(), 0);
+
+			BlackboardComp->SetValueAsObject("TargetActor", targetActor);
+
+			bSuccess = true;
+		}
 	}
 
 	return bSuccess;

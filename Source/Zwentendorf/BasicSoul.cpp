@@ -10,7 +10,6 @@
 ABasicSoul::ABasicSoul()
 	: ASoul()
 {
-	UFloatingPawnMovement *movementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MovementComponent"));
 }
 
 const float ABasicSoul::GetHealthPoints()
