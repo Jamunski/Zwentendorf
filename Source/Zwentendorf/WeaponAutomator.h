@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "WeaponCannon.h"
+#include "WeaponModule.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -31,6 +31,9 @@ private:
 
 	UPROPERTY(Category = Module, EditAnywhere)
 		AWeaponModule* m_Weapon;
+
+	UPROPERTY(Category = Module, EditAnywhere)
+		TSubclassOf<AWeaponModule> m_WeaponClass;
 
 public:
 	/* How fast the weapon will fire */

@@ -34,6 +34,15 @@ class ATasis : public ASoul
 	UPROPERTY(Category = Module, EditAnywhere)
 		AWeaponModule* m_WeaponRight;
 
+	UPROPERTY(Category = Module, EditAnywhere)
+		TSubclassOf<AMobilityModule> m_MobilityClass;
+	UPROPERTY(Category = Module, EditAnywhere)
+		TSubclassOf<AChassisModule> m_ChassisClass;
+	UPROPERTY(Category = Module, EditAnywhere)
+		TSubclassOf<AWeaponModule> m_WeaponLeftClass;
+	UPROPERTY(Category = Module, EditAnywhere)
+		TSubclassOf<AWeaponModule> m_WeaponRightClass;
+
 public:
 	ATasis();
 

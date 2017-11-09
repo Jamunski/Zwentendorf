@@ -9,23 +9,15 @@
 AMobilityDefault::AMobilityDefault()
 	: AMobilityModule()
 {
-	// Movement
-	InitializeMesh();
-
 	MoveSpeed = 1000.0f;
 }
 
 void AMobilityDefault::InitializeMesh()
 {
+	UE_LOG(LogActor, Warning, TEXT("AMobilityDefault"));
 	if (MeshComponent == nullptr)
 	{
 		UE_LOG(LogActor, Warning, TEXT("AMobilityDefault"));
-		static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Meshes/Character/Tasis/MOB_Default.MOB_Default"));
-		// Create the mesh component
-		MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-		RootComponent = MeshComponent;
-		MeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
-		MeshComponent->SetStaticMesh(Mesh.Object);
 
 		MeshComponent->SetSimulatePhysics(true);
 		MeshComponent->SetEnableGravity(true);

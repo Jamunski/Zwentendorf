@@ -21,10 +21,13 @@ void AWeaponAutomator::BeginPlay()
 	UWorld* const World = GetWorld();
 	if (World != NULL)
 	{
-		m_Weapon = World->SpawnActor<AWeaponCannon>(PositionComponent->GetComponentLocation(), PositionComponent->GetComponentRotation());
-		//FVector const* Location=NULL, FRotator const* Rotation=NULL
+		if (m_WeaponClass)
+		{
+			m_Weapon = World->SpawnActor<AWeaponModule>(m_WeaponClass, PositionComponent->GetComponentLocation(), PositionComponent->GetComponentRotation());
+			//FVector const* Location=NULL, FRotator const* Rotation=NULL
 
-		World->GetTimerManager().SetTimer(TimerHandle_ShotTimerExpired, this, &AWeaponAutomator::ShotTimerExpired, FireInterval);
+			World->GetTimerManager().SetTimer(TimerHandle_ShotTimerExpired, this, &AWeaponAutomator::ShotTimerExpired, FireInterval);
+		}
 	}
 
 	if (m_Weapon != NULL)

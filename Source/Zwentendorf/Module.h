@@ -16,10 +16,18 @@ protected:
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* MeshComponent;
 
+	UPROPERTY(Category = "Mesh", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UStaticMesh* Mesh;
+
 	UPROPERTY(Category = Soul, EditAnywhere)
 		APawn* m_Soul; //JV-TODO: Use ASoul class instead of APawn 
+
 public:	
 	AModule();
+
+	virtual void InitializeModule();
+
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
 	virtual void LinkSoul(APawn *soul); //JV-TODO: Use ASoul class instead of APawn 
 

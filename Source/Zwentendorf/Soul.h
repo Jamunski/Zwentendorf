@@ -40,7 +40,6 @@ protected:
 public:
 	ASoul();
 
-	//CALL IN DERIVED
 	virtual void InitializeSoul();
 
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;

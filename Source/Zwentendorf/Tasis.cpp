@@ -58,19 +58,31 @@ void ATasis::PostInitializeComponents()
 			FRotator rotation = FRotator(0.0f);
 
 			//Chassis
-			m_Chassis = World->SpawnActor<AChassisDefault>();
-			m_Chassis->LinkSoul(this);
+			if (m_ChassisClass)
+			{
+				m_Chassis = World->SpawnActor<AChassisModule>(m_ChassisClass);
+				m_Chassis->LinkSoul(this);
+			}
 
-			//Mobility
-			m_Mobility = World->SpawnActor<AMobilityDefault>(GetActorLocation(), GetActorRotation());
-			m_Mobility->LinkSoul(this);
+			//Mobility 
+			if (m_MobilityClass)
+			{
+				m_Mobility = World->SpawnActor<AMobilityModule>(m_MobilityClass, GetActorLocation(), GetActorRotation());
+				m_Mobility->LinkSoul(this);
+			}
 
 			//Weapons
-			m_WeaponLeft = World->SpawnActor<AWeaponCannon>();
-			m_WeaponLeft->LinkSoul(this);
+			if (m_WeaponLeftClass)
+			{
+				m_WeaponLeft = World->SpawnActor<AWeaponModule>(m_WeaponLeftClass);
+				m_WeaponLeft->LinkSoul(this);
+			}
 
-			m_WeaponRight = World->SpawnActor<AWeaponCannon>();
-			m_WeaponRight->LinkSoul(this);
+			if (m_WeaponRightClass)
+			{
+				m_WeaponRight = World->SpawnActor<AWeaponModule>(m_WeaponRightClass);
+				m_WeaponRight->LinkSoul(this);
+			}
 
 			if (m_Chassis && m_Mobility && m_WeaponLeft && m_WeaponRight)
 			{
