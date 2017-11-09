@@ -2,7 +2,9 @@
 
 #include "SoulAIController.h"
 
+#include "BasicSoul.h"
 #include "BotTargetPoint.h"
+
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
@@ -48,6 +50,14 @@ void ASoulAIController::Possess(APawn* Pawn)
 void ASoulAIController::SetTarget(AActor *Target)
 {
 	TargetActor = Target;
+}
+
+void ASoulAIController::FireWeapon()
+{
+	if (PossessedSoul->IsA(ABasicSoul::StaticClass()))
+	{
+		Cast<ABasicSoul>(PossessedSoul)->FireWeapon();
+	}
 }
 
 void ASoulAIController::ExecuteStrategy(EStrategyType strategy)

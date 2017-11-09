@@ -28,6 +28,8 @@ const bool UBobStrategy::ExecuteStrategy(ASoulAIController *soulAIController)
 			//This breaks when player is upside down...
 			soulAIController->MoveToActor(targetActor, 500.0f);
 
+			soulAIController->FireWeapon();
+
 			bSuccess = true;
 		}
 	}

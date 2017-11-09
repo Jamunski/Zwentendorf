@@ -44,6 +44,8 @@ public:
 
 	virtual void SetTarget(AActor *Target);
 
+	virtual void FireWeapon();
+
 	/*----------Strategies----------*/
 	void ExecuteStrategy(EStrategyType strategy);
 

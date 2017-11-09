@@ -55,7 +55,7 @@ void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 		if (!Delta.IsNearlyZero(1e-6f))
 		{
 			const FVector OldLocation = UpdatedComponent->GetComponentLocation();
-			const FQuat Rotation = UpdatedComponent->GetComponentQuat();
+			const FQuat Rotation = Velocity.ToOrientationQuat(); //Roatate to face movemement direction
 
 			FHitResult Hit(1.f);
 			SafeMoveUpdatedComponent(Delta, Rotation, true, Hit);

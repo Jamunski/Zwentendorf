@@ -32,4 +32,25 @@ public:
 
 protected:
 	void OnDeath() override;
+
+//////////REMOVE ME//////////
+	/** Handle for efficient management of ShotTimerExpired timer */
+	FTimerHandle TimerHandle_ShotTimerExpired;
+
+	/* Flag to control firing  */
+	uint32 bCanFire : 1;
+
+public: 
+	void FireWeapon();
+
+	void ShotTimerExpired();
+
+	/* How fast the weapon will fire */
+	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
+		float FireRate;
+
+	/** Sound to play each time we fire */
+	UPROPERTY(Category = Audio, EditAnywhere, BlueprintReadWrite)
+		class USoundBase* FireSound;
+//////////REMOVE ME//////////
 };
