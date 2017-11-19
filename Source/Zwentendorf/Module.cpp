@@ -6,11 +6,6 @@
 
 AModule::AModule()
 {
-	InitializeModule();
-}
-
-void AModule::InitializeModule()
-{
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 }
 
@@ -18,15 +13,6 @@ void AModule::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEven
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	UE_LOG(LogActor, Warning, TEXT("PostEditChangeProperty"));
-	if (Mesh)
-	{
-		UE_LOG(LogActor, Warning, TEXT("Mesh Valid"));
-		MeshComponent->SetStaticMesh(Mesh);
-		RootComponent = MeshComponent;
-
-		MeshComponent->SetSimulatePhysics(true);
-		MeshComponent->SetEnableGravity(true);
-	}
 }
 
 void AModule::LinkSoul(APawn *soul)

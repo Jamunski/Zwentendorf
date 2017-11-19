@@ -8,11 +8,26 @@
 USoulMovementComponent::USoulMovementComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = true;
+	SetComponentTickEnabled(true);
+
 	MaxSpeed = 1200.f;
 	Acceleration = 4000.f;
 	Deceleration = 8000.f;
 	TurningBoost = 8.0f;
 	bPositionCorrected = false;
+
+	bAutoRegisterUpdatedComponent = false;
+
+	if (PawnOwner && PawnOwner->IsA(ASoul::StaticClass()))
+	{
+		PossessedSoul = Cast<ASoul>(PawnOwner);
+	}
+	else
+	{
+		//Error msg...
+	}
 
 	ResetMoveState();
 }
@@ -31,12 +46,15 @@ void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 		return;
 	}
 
+	//DoThing();
+
 	const AController* Controller = PawnOwner->GetController();
 	if (Controller && Controller->IsLocalController())
 	{
 		// apply input for local players but also for AI that's not following a navigation path at the moment
-		if (Controller->IsLocalPlayerController() == true || Controller->IsFollowingAPath() == false || bUseAccelerationForPaths)
+		if (Controller->IsLocalPlayerController() || !Controller->IsFollowingAPath() || bUseAccelerationForPaths)
 		{
+			//JV-TODO: I don't like this way of doing things, Velocity should always represent the world vel, this should return a different vector which is used to apply a change in velocity...
 			ApplyControlInputToVelocity(DeltaTime);
 		}
 		// if it's not player controller, but we do have a controller, then it's AI
@@ -50,12 +68,17 @@ void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 		bPositionCorrected = false;
 
 		// Move actor
+		const FVector Gravity = { 0.0f, 0.0f, 9.81f };
+		//Velocity += Gravity;
+
 		FVector Delta = Velocity * DeltaTime;
 
 		if (!Delta.IsNearlyZero(1e-6f))
 		{
+			UE_LOG(LogActor, Warning, TEXT("Moving"), Velocity.X, Velocity.Y, Velocity.Z);
+
 			const FVector OldLocation = UpdatedComponent->GetComponentLocation();
-			const FQuat Rotation = Velocity.ToOrientationQuat(); //Roatate to face movemement direction
+			const FQuat Rotation = bStrafing ? PawnOwner->GetActorRotation().Quaternion() : Velocity.ToOrientationQuat(); 
 
 			FHitResult Hit(1.f);
 			SafeMoveUpdatedComponent(Delta, Rotation, true, Hit);
@@ -140,6 +163,49 @@ void USoulMovementComponent::ApplyControlInputToVelocity(float DeltaTime)
 	Velocity = Velocity.GetClampedToMaxSize(NewMaxSpeed);
 
 	ConsumeInputVector();
+}
+
+void USoulMovementComponent::SetUpdatedComponent(USceneComponent * NewUpdatedComponent)
+{
+	Super::SetUpdatedComponent(NewUpdatedComponent);
+
+	//JV-TODO: It might be a good idea to take another look at PawnMovementComponent implementation of this function, maybe the logic there is a good fallback in case this function returns null?
+	if (NewUpdatedComponent)
+	{
+		PawnOwner = GetParentPawn(NewUpdatedComponent);
+
+		if (!PawnOwner)
+		{
+			PawnOwner = CastChecked<APawn>(NewUpdatedComponent->GetOwner());
+
+			UpdatedComponent = NewUpdatedComponent;
+		}
+	}
+	
+}
+
+APawn * USoulMovementComponent::GetParentPawn(USceneComponent * NewUpdatedComponent)
+{
+	//JV-TODO: The Actor which has the SoulMovementComponenet attached to it is the mobility module. This module is at the top of the actor hierarchy and this function will not work in this case. I think I need to change the hierarchy so that it is correct. Soul <- Chassis <- Mobility, LeftWea, RightWea, Mod1, Mod2
+
+	USceneComponent *Parent = nullptr;
+
+	if (NewUpdatedComponent && NewUpdatedComponent->GetOwner() && NewUpdatedComponent->GetOwner()->GetRootComponent())
+	{
+		USceneComponent *thing = NewUpdatedComponent->GetOwner()->GetRootComponent();
+		Parent = NewUpdatedComponent->GetOwner()->GetRootComponent()->GetAttachParent();
+	}
+
+	//If this actor has a parent
+	if (Parent)
+	{
+		APawn *Pawn = CastChecked<APawn>(Parent->GetOwner());
+
+		//if this actor's parent is a Pawn we can finally return
+		return Pawn ? Pawn : GetParentPawn(Parent);
+	}
+
+	return nullptr;
 }
 
 bool USoulMovementComponent::ResolvePenetrationImpl(const FVector& Adjustment, const FHitResult& Hit, const FQuat& NewRotationQuat)

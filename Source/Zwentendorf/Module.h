@@ -13,19 +13,14 @@ class ZWENTENDORF_API AModule : public AActor
 
 protected:
 	/* The mesh component */
-	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* MeshComponent;
-
-	UPROPERTY(Category = "Mesh", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	class UStaticMesh* Mesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UStaticMeshComponent* MeshComponent;
 
 	UPROPERTY(Category = Soul, EditAnywhere)
 		APawn* m_Soul; //JV-TODO: Use ASoul class instead of APawn 
 
 public:	
 	AModule();
-
-	virtual void InitializeModule();
 
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
@@ -35,8 +30,4 @@ public:
 	FORCEINLINE class UStaticMeshComponent* GetMeshComponent() const { return MeshComponent; }
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-
-protected:
-	//Call in derrived constructor
-	virtual void InitializeMesh() PURE_VIRTUAL(AModule::InitializeMesh, ;);
 };

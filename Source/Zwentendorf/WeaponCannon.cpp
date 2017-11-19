@@ -25,17 +25,6 @@ AWeaponCannon::AWeaponCannon()
 	bCanFire = true;
 }
 
-void AWeaponCannon::InitializeMesh()
-{
-	if (MeshComponent == nullptr)
-	{
-		UE_LOG(LogActor, Warning, TEXT("AWeaponCannon"));
-
-		MeshComponent->SetSimulatePhysics(true);
-		MeshComponent->SetEnableGravity(true);
-	}
-}
-
 void AWeaponCannon::BeginPlay()
 {
 	Super::BeginPlay();

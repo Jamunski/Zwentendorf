@@ -27,11 +27,8 @@ public:
 	class UBehaviorTree* BehaviorTree;
 
 	/* The mesh component */
-	UPROPERTY(EditAnywhere, Category = "Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UStaticMeshComponent* MeshComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
-		class UStaticMesh* Mesh;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "AI")
@@ -39,8 +36,6 @@ protected:
 
 public:
 	ASoul();
-
-	virtual void InitializeSoul();
 
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
@@ -51,6 +46,8 @@ public:
 	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f ;);
 
 	virtual bool ExecuteStrategy(EStrategyType strategyType);
+
+	virtual void SetMCUpdatedComponent(USceneComponent* NewUpdatedComponent);
 
 	//Soul actions
 	virtual void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) {};

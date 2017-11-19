@@ -15,17 +15,6 @@ AChassisDefault::AChassisDefault()
 	HealthPoints = MaximumHealthPoints;
 }
 
-void AChassisDefault::InitializeMesh()
-{
-	if (MeshComponent == nullptr)
-	{
-		UE_LOG(LogActor, Warning, TEXT("AChassisDefault"));
-
-		MeshComponent->SetSimulatePhysics(true);
-		MeshComponent->SetEnableGravity(true);
-	}
-}
-
 void AChassisDefault::BeginPlay()
 {
 	Super::BeginPlay();
