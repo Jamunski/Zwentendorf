@@ -13,7 +13,7 @@ class ZWENTENDORF_API AModule : public AActor
 
 protected:
 	/* The mesh component */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		class UStaticMeshComponent* MeshComponent;
 
 	UPROPERTY(Category = Soul, EditAnywhere)

@@ -20,6 +20,8 @@ class ZWENTENDORF_API USoulMovementComponent : public UPawnMovementComponent
 
 	ASoul *PossessedSoul;
 
+	UStaticMeshComponent *PhysicsMesh;
+
 	//Begin UActorComponent Interface
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	//End UActorComponent Interface
@@ -32,7 +34,7 @@ public:
 	virtual void SetUpdatedComponent(USceneComponent* NewUpdatedComponent) override;
 
 	/*Recursive function which travels up the hierarchy until it finds a Pawn. Returns nullptr if it fails to find a Pawn*/
-	virtual APawn *GetParentPawn(USceneComponent* NewUpdatedComponent);
+	virtual ASoul *GetParentSoul(USceneComponent* NewUpdatedComponent);
 
 protected:
 	virtual bool ResolvePenetrationImpl(const FVector& Adjustment, const FHitResult& Hit, const FQuat& NewRotation) override;
@@ -56,9 +58,7 @@ public:
 
 protected:
 
-	virtual void ApplyControlInputToVelocity(float DeltaTime);
-
-	virtual bool LimitWorldBounds();
+	virtual FVector GetInputVector(float DeltaTime);
 
 	UPROPERTY(Transient)
 		uint32 bPositionCorrected : 1;

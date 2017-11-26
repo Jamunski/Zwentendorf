@@ -27,7 +27,7 @@ public:
 	class UBehaviorTree* BehaviorTree;
 
 	/* The mesh component */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		class UStaticMeshComponent* MeshComponent;
 
 protected:

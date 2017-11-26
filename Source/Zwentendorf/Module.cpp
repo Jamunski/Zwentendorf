@@ -2,11 +2,15 @@
 
 #include "Module.h"
 
+#include "Soul.h"
+
 #include "Components/StaticMeshComponent.h"
 
 AModule::AModule()
 {
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+
+	RootComponent = MeshComponent;
 }
 
 void AModule::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)

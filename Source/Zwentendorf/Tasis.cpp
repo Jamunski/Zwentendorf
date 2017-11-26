@@ -6,6 +6,7 @@
 #include "WeaponCannon.h"
 #include "ChassisDefault.h"
 #include "MobilityDefault.h"
+#include "SoulMovementComponent.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
@@ -40,6 +41,11 @@ ATasis::ATasis()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	CameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;	// Camera does not rotate relative to arm
+}
+
+void ATasis::OnHit(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit)
+{
+	UE_LOG(LogActor, Warning, TEXT("ATasis::OnHit"));
 }
 
 void ATasis::PostInitializeComponents()
@@ -93,6 +99,8 @@ void ATasis::PostInitializeComponents()
 					UE_LOG(LogActor, Warning, TEXT("SCK_Chassis Exists"));
 
 					m_Chassis->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
+
+					Children.Add(m_Chassis);
 				}
 
 				//Attach Mobility to Chassis
@@ -102,6 +110,8 @@ void ATasis::PostInitializeComponents()
 					UE_LOG(LogActor, Warning, TEXT("SCK_Mobility Exists"));
 
 					m_Mobility->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckMobility);
+
+					Children.Add(m_Mobility);
 				}
 
 				//Attach Weapons to Chassis
@@ -111,6 +121,8 @@ void ATasis::PostInitializeComponents()
 					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
 
 					m_WeaponLeft->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
+
+					Children.Add(m_WeaponLeft);
 				}
 
 				FName fnSckWeaponRight = TEXT("SCK_WeaponRight");
@@ -119,6 +131,8 @@ void ATasis::PostInitializeComponents()
 					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponRight Exists"));
 
 					m_WeaponRight->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
+
+					Children.Add(m_WeaponRight);
 				}
 
 				//Weld parts together...
@@ -131,13 +145,33 @@ void ATasis::PostInitializeComponents()
 					MeshComponent->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
 					MeshComponent->IgnoreComponentWhenMoving(m_WeaponLeft->GetMeshComponent(), true);
 					MeshComponent->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
+
+					m_Chassis->GetMeshComponent()->IgnoreComponentWhenMoving(MeshComponent, true);
+					m_Chassis->GetMeshComponent()->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
+					m_Chassis->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponLeft->GetMeshComponent(), true);
+					m_Chassis->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
+
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(MeshComponent, true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponLeft->GetMeshComponent(), true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
+
+					m_WeaponLeft->GetMeshComponent()->IgnoreComponentWhenMoving(MeshComponent, true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
+
+					m_WeaponRight->GetMeshComponent()->IgnoreComponentWhenMoving(MeshComponent, true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponLeft->GetMeshComponent(), true);
 				}
 				m_Mobility->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckMobility);
 				m_WeaponLeft->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponLeft);
 				m_WeaponRight->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponRight);
 
-				//Set the movementController's updated component to be the core... <- This may not be right...
-				SetMCUpdatedComponent(RootComponent);
+				//Set the movementController's updated component
+				SetMCUpdatedComponent(m_Mobility->GetMeshComponent()); //JV-TODO: MC will only tick if the updated component shares the same parent as it.
 			}
 		}
 	}
@@ -174,6 +208,18 @@ void ATasis::OnDeath()
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->RestartLevel();
 	//Another way to restart the level...
 	//UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+}
+
+void ATasis::SetMCUpdatedComponent(USceneComponent * NewUpdatedComponent)
+{
+	if (m_Mobility)
+	{
+		USoulMovementComponent *MC = m_Mobility->FindComponentByClass<USoulMovementComponent>();
+		if (MC && RootComponent)
+		{
+			MC->SetUpdatedComponent(NewUpdatedComponent);
+		}
+	}
 }
 
 void ATasis::CaclulateMovementInput(float DeltaSeconds, FVector movementVector)
