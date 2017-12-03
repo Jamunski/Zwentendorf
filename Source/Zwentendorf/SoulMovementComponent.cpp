@@ -29,7 +29,7 @@ USoulMovementComponent::USoulMovementComponent(const FObjectInitializer& ObjectI
 
 void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
-	UE_LOG(LogActor, Warning, TEXT("Begin TickComponent"));
+	//UE_LOG(LogActor, Warning, TEXT("Begin TickComponent"));
 
 	if (ShouldSkipUpdate(DeltaTime))
 	{
@@ -43,7 +43,7 @@ void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 		return;
 	}
 
-	UE_LOG(LogActor, Warning, TEXT("Pass TickComponent"));
+	//UE_LOG(LogActor, Warning, TEXT("Pass TickComponent"));
 
 	const AController* Controller = PossessedSoul->GetController();
 	if (Controller && Controller->IsLocalController())

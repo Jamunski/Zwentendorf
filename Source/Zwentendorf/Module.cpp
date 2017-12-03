@@ -10,7 +10,12 @@ AModule::AModule()
 {
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
-	RootComponent = MeshComponent;
+	// JV-TODO: This causes the editor to crash
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	MeshComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+
+	MeshComponent->SetSimulatePhysics(true);
+	MeshComponent->SetEnableGravity(true);
 }
 
 void AModule::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)

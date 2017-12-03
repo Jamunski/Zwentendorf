@@ -19,6 +19,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
+
 ATasis::ATasis()
 {
 	UE_LOG(LogActor, Warning, TEXT("ATasis"));
@@ -41,11 +42,6 @@ ATasis::ATasis()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	CameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;	// Camera does not rotate relative to arm
-}
-
-void ATasis::OnHit(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit)
-{
-	UE_LOG(LogActor, Warning, TEXT("ATasis::OnHit"));
 }
 
 void ATasis::PostInitializeComponents()
@@ -90,6 +86,8 @@ void ATasis::PostInitializeComponents()
 				m_WeaponRight->LinkSoul(this);
 			}
 
+			bool bAttachSuccessful = true;
+
 			if (m_Chassis && m_Mobility && m_WeaponLeft && m_WeaponRight)
 			{
 				//Attach Chassis to Core
@@ -98,7 +96,9 @@ void ATasis::PostInitializeComponents()
 				{
 					UE_LOG(LogActor, Warning, TEXT("SCK_Chassis Exists"));
 
-					m_Chassis->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
+					bAttachSuccessful = m_Chassis->GetRootComponent()->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
+
+					UE_LOG(LogActor, Warning, TEXT("SCK_Chassis %d"), bAttachSuccessful);
 
 					Children.Add(m_Chassis);
 				}
@@ -109,7 +109,9 @@ void ATasis::PostInitializeComponents()
 				{
 					UE_LOG(LogActor, Warning, TEXT("SCK_Mobility Exists"));
 
-					m_Mobility->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckMobility);
+					bAttachSuccessful = m_Mobility->GetRootComponent()->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckMobility);
+
+					UE_LOG(LogActor, Warning, TEXT("SCK_Mobility %d"), bAttachSuccessful);
 
 					Children.Add(m_Mobility);
 				}
@@ -120,7 +122,9 @@ void ATasis::PostInitializeComponents()
 				{
 					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
 
-					m_WeaponLeft->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
+					bAttachSuccessful = m_WeaponLeft->GetRootComponent()->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
+
+					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft %d"), bAttachSuccessful);
 
 					Children.Add(m_WeaponLeft);
 				}
@@ -130,7 +134,9 @@ void ATasis::PostInitializeComponents()
 				{
 					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponRight Exists"));
 
-					m_WeaponRight->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
+					bAttachSuccessful = m_WeaponRight->GetRootComponent()->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
+
+					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponRight %d"), bAttachSuccessful);
 
 					Children.Add(m_WeaponRight);
 				}
@@ -157,21 +163,21 @@ void ATasis::PostInitializeComponents()
 					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
 
 					m_WeaponLeft->GetMeshComponent()->IgnoreComponentWhenMoving(MeshComponent, true);
-					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
-					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
-					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
+					m_WeaponLeft->GetMeshComponent()->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
+					m_WeaponLeft->GetMeshComponent()->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
+					m_WeaponLeft->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
 
 					m_WeaponRight->GetMeshComponent()->IgnoreComponentWhenMoving(MeshComponent, true);
-					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
-					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
-					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponLeft->GetMeshComponent(), true);
+					m_WeaponRight->GetMeshComponent()->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
+					m_WeaponRight->GetMeshComponent()->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
+					m_WeaponRight->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponLeft->GetMeshComponent(), true);
 				}
 				m_Mobility->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckMobility);
 				m_WeaponLeft->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponLeft);
 				m_WeaponRight->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponRight);
 
 				//Set the movementController's updated component
-				SetMCUpdatedComponent(m_Mobility->GetMeshComponent()); //JV-TODO: MC will only tick if the updated component shares the same parent as it.
+				SetMCUpdatedComponent(m_Mobility->GetMeshComponent());
 			}
 		}
 	}
@@ -222,23 +228,9 @@ void ATasis::SetMCUpdatedComponent(USceneComponent * NewUpdatedComponent)
 	}
 }
 
-void ATasis::CaclulateMovementInput(float DeltaSeconds, FVector movementVector)
-{
-	if (m_Mobility)
-	{
-		//m_Mobility->CaclulateMovementInput(DeltaSeconds, movementVector);
-		UPawnMovementComponent* movementComp = GetMovementComponent();
-
-		if (movementComp)
-		{
-
-		}
-	}
-}
-
 void ATasis::CalculateAimInput(float DeltaSeconds, FVector aimVector)
 {
-	//This logic may belong in the Chassis module, similar to movement in the mobility module
+	//JV-TODO: This logic may belong in the Chassis module, similar to movement in the mobility module
 
 	// If we are pressing aim stick in a direction
 	if (aimVector.SizeSquared() > 0.0f)
@@ -246,7 +238,11 @@ void ATasis::CalculateAimInput(float DeltaSeconds, FVector aimVector)
 		const FRotator NewRotation = aimVector.Rotation();
 		if (m_Chassis)
 		{
+			auto mobRot = m_Mobility->GetMeshComponent()->GetComponentRotation();
+
 			m_Chassis->GetMeshComponent()->SetRelativeRotation(NewRotation);
+
+			m_Mobility->GetMeshComponent()->SetWorldRotation(mobRot, true);
 		}
 	}
 }

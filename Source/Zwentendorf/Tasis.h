@@ -46,10 +46,6 @@ class ATasis : public ASoul
 public:
 	ATasis();
 
-	/** Function to pass up hit event to owning soul... */
-	UFUNCTION()
-		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
 	// Begin Actor Interface
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -63,7 +59,6 @@ public:
 
 	virtual void SetMCUpdatedComponent(USceneComponent* NewUpdatedComponent) override;
 
-	void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) override;
 	void CalculateAimInput(float DeltaSeconds, FVector aimVector) override;
 
 	void LeftShoulder() override;

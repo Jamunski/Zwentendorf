@@ -32,8 +32,6 @@ void AWeaponCannon::BeginPlay()
 
 void AWeaponCannon::Activate()
 {
-	UE_LOG(LogActor, Warning, TEXT("Fire"));
-
 	// If we it's ok to fire again
 	if (bCanFire == true)
 	{
