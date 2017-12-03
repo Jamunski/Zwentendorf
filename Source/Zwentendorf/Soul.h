@@ -49,6 +49,8 @@ public:
 
 	virtual void SetMCUpdatedComponent(USceneComponent* NewUpdatedComponent);
 
+	virtual float GetTotalMass() { return MeshComponent->GetMass(); };
+
 	//Soul actions
 	virtual void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) {};
 	virtual void CalculateAimInput(float DeltaSeconds, FVector aimVector) {};

@@ -228,6 +228,18 @@ void ATasis::SetMCUpdatedComponent(USceneComponent * NewUpdatedComponent)
 	}
 }
 
+float ATasis::GetTotalMass()
+{
+	float totalMass = 0.0f;
+
+	totalMass += m_Mobility->GetMeshComponent()->GetMass();
+	totalMass += m_Chassis->GetMeshComponent()->GetMass();
+	totalMass += m_WeaponLeft->GetMeshComponent()->GetMass();
+	totalMass += m_WeaponRight->GetMeshComponent()->GetMass();
+
+	return totalMass;
+}
+
 void ATasis::CalculateAimInput(float DeltaSeconds, FVector aimVector)
 {
 	//JV-TODO: This logic may belong in the Chassis module, similar to movement in the mobility module

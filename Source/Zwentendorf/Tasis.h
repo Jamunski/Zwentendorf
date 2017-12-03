@@ -59,6 +59,8 @@ public:
 
 	virtual void SetMCUpdatedComponent(USceneComponent* NewUpdatedComponent) override;
 
+	virtual float GetTotalMass() override;
+
 	void CalculateAimInput(float DeltaSeconds, FVector aimVector) override;
 
 	void LeftShoulder() override;

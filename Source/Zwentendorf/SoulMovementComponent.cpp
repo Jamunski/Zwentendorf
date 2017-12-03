@@ -29,7 +29,7 @@ USoulMovementComponent::USoulMovementComponent(const FObjectInitializer& ObjectI
 
 void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
-	//UE_LOG(LogActor, Warning, TEXT("Begin TickComponent"));
+	UE_LOG(LogActor, Warning, TEXT("Begin TickComponent"));
 
 	if (ShouldSkipUpdate(DeltaTime))
 	{
@@ -43,7 +43,7 @@ void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 		return;
 	}
 
-	//UE_LOG(LogActor, Warning, TEXT("Pass TickComponent"));
+	UE_LOG(LogActor, Warning, TEXT("Pass TickComponent"));
 
 	const AController* Controller = PossessedSoul->GetController();
 	if (Controller && Controller->IsLocalController())
@@ -56,18 +56,19 @@ void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 			InputVector = GetInputVector(DeltaTime);
 		}
 
+		FVector PhysicsVelocity = PhysicsMesh->GetPhysicsLinearVelocity();
+
 		if (!InputVector.IsNearlyZero(1e-6f))
 		{
-			PhysicsMesh->AddImpulse(InputVector * 10 * Acceleration); //Need to set simulate physics for this to work...
-			FVector PhysicsVelocity = PhysicsMesh->GetPhysicsLinearVelocity();
-			if (PhysicsVelocity.Size() > MaxSpeed)
-			{
-				PhysicsMesh->SetPhysicsLinearVelocity(InputVector.GetClampedToSize(0.0f, MaxSpeed));
-			}
+			auto prevGravity = PhysicsVelocity.Z;
+
+			PhysicsVelocity = InputVector * MaxSpeed;
+
+			PhysicsVelocity.Z += prevGravity;
 		}
 
-		// Finalize
-		//JV-TODO: Get the velocity and set the member. Velocity = physicsVel;
+		PhysicsMesh->SetPhysicsLinearVelocity(PhysicsVelocity);
+
 		Velocity = PhysicsMesh->GetPhysicsLinearVelocity();
 		UpdateComponentVelocity();
 	}
