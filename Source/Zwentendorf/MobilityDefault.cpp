@@ -12,18 +12,6 @@ AMobilityDefault::AMobilityDefault()
 	MoveSpeed = 1000.0f;
 }
 
-void AMobilityDefault::InitializeMesh()
-{
-	UE_LOG(LogActor, Warning, TEXT("AMobilityDefault"));
-	if (MeshComponent == nullptr)
-	{
-		UE_LOG(LogActor, Warning, TEXT("AMobilityDefault"));
-
-		MeshComponent->SetSimulatePhysics(true);
-		MeshComponent->SetEnableGravity(true);
-	}
-}
-
 void AMobilityDefault::BeginPlay()
 {
 	Super::BeginPlay();

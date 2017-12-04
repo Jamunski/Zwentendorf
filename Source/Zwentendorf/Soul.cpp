@@ -3,6 +3,7 @@
 #include "Soul.h"
 
 #include "SoulAIController.h"
+#include "SoulMovementComponent.h"
 
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -10,24 +11,13 @@
 
 ASoul::ASoul()
 {
-	InitializeSoul();
-}
-
-void ASoul::InitializeSoul()
-{
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 }
 
 void ASoul::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	UE_LOG(LogActor, Warning, TEXT("PostEditChangeProperty"));
-	if (Mesh)
-	{
-		UE_LOG(LogActor, Warning, TEXT("Mesh Valid"));
-		MeshComponent->SetStaticMesh(Mesh);
-		RootComponent = MeshComponent;
-	}
 }
 
 float ASoul::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -71,4 +61,13 @@ bool ASoul::ExecuteStrategy(EStrategyType strategyType)
 	}
 
 	return false;
+}
+
+void ASoul::SetMCUpdatedComponent(USceneComponent* NewUpdatedComponent)
+{
+	USoulMovementComponent *MC = FindComponentByClass<USoulMovementComponent>();
+	if (MC && RootComponent)
+	{
+		MC->SetUpdatedComponent(NewUpdatedComponent);
+	}
 }

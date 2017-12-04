@@ -6,6 +6,7 @@
 #include "WeaponCannon.h"
 #include "ChassisDefault.h"
 #include "MobilityDefault.h"
+#include "SoulMovementComponent.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
@@ -17,6 +18,7 @@
 #include "Engine/StaticMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
+
 
 ATasis::ATasis()
 {
@@ -84,98 +86,98 @@ void ATasis::PostInitializeComponents()
 				m_WeaponRight->LinkSoul(this);
 			}
 
+			bool bAttachSuccessful = true;
+
 			if (m_Chassis && m_Mobility && m_WeaponLeft && m_WeaponRight)
 			{
-				//Chassis
+				//Attach Chassis to Core
 				FName fnSckChassis = TEXT("SCK_Chassis");
-				if (m_Mobility->GetMeshComponent()->DoesSocketExist(fnSckChassis))
+				if (MeshComponent && MeshComponent->DoesSocketExist(fnSckChassis))
 				{
 					UE_LOG(LogActor, Warning, TEXT("SCK_Chassis Exists"));
 
-					m_Chassis->AttachToComponent(m_Mobility->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
+					bAttachSuccessful = m_Chassis->GetRootComponent()->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
+
+					UE_LOG(LogActor, Warning, TEXT("SCK_Chassis %d"), bAttachSuccessful);
+
+					Children.Add(m_Chassis);
 				}
 
-				//Core
-				FName fnSckCore = TEXT("SCK_Core");
-				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckCore))
-				{
-					UE_LOG(LogActor, Warning, TEXT("SCK_Core Exists"));
-
-					AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckCore);
-				}
-
-				//Weapon
-				FName fnSckWeaponLeft = TEXT("SCK_WeaponLeft");
-				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponLeft))
-				{
-					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
-
-					m_WeaponLeft->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
-				}
-
-				FName fnSckWeaponRight = TEXT("SCK_WeaponRight");
-				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponRight))
-				{
-					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
-
-					m_WeaponRight->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
-				}
-
-				//Weld parts together...
-				m_WeaponLeft->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponLeft);
-				m_WeaponRight->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponRight);
-				m_Chassis->GetMeshComponent()->WeldTo(m_Mobility->GetMeshComponent(), fnSckChassis);
-				if (MeshComponent)
-				{
-					MeshComponent->WeldTo(m_Chassis->GetMeshComponent(), fnSckCore);
-				}
-
-				//JV-TODO: More Correct Hierarchy, results not ideal... Maybe this is the way to go, but I should use physicsConstraints instead to work as joints connecting these pieces together? Need to import later assets in order to get the correct sockets...
-				/*
-				//Mobility
+				//Attach Mobility to Chassis
 				FName fnSckMobility = TEXT("SCK_Mobility");
 				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckMobility))
 				{
-				UE_LOG(LogActor, Warning, TEXT("SCK_Mobility Exists"));
+					UE_LOG(LogActor, Warning, TEXT("SCK_Mobility Exists"));
 
-				m_Mobility->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckMobility);
+					bAttachSuccessful = m_Mobility->GetRootComponent()->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckMobility);
+
+					UE_LOG(LogActor, Warning, TEXT("SCK_Mobility %d"), bAttachSuccessful);
+
+					Children.Add(m_Mobility);
 				}
 
-				//Core
-				FName fnSckChassis = TEXT("SCK_Chassis");
-				if (MeshComponent->DoesSocketExist(fnSckChassis))
-				{
-				UE_LOG(LogActor, Warning, TEXT("SCK_Chassis Exists"));
-
-				m_Chassis->GetMeshComponent()->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
-				}
-
-				//Weapon
+				//Attach Weapons to Chassis
 				FName fnSckWeaponLeft = TEXT("SCK_WeaponLeft");
 				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponLeft))
 				{
-				UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
+					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
 
-				m_WeaponLeft->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
+					bAttachSuccessful = m_WeaponLeft->GetRootComponent()->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
+
+					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft %d"), bAttachSuccessful);
+
+					Children.Add(m_WeaponLeft);
 				}
 
 				FName fnSckWeaponRight = TEXT("SCK_WeaponRight");
 				if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponRight))
 				{
-				UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
+					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponRight Exists"));
 
-				m_WeaponRight->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
+					bAttachSuccessful = m_WeaponRight->GetRootComponent()->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
+
+					UE_LOG(LogActor, Warning, TEXT("SCK_WeaponRight %d"), bAttachSuccessful);
+
+					Children.Add(m_WeaponRight);
 				}
 
 				//Weld parts together...
-				m_Chassis->GetMeshComponent()->WeldTo(MeshComponent, fnSckChassis);
+				if (MeshComponent)
+				{
+					m_Chassis->GetMeshComponent()->WeldTo(MeshComponent, fnSckChassis);
+
+					//Ignore other meshes so that this doesn't collide into itself when moving...
+					MeshComponent->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
+					MeshComponent->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
+					MeshComponent->IgnoreComponentWhenMoving(m_WeaponLeft->GetMeshComponent(), true);
+					MeshComponent->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
+
+					m_Chassis->GetMeshComponent()->IgnoreComponentWhenMoving(MeshComponent, true);
+					m_Chassis->GetMeshComponent()->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
+					m_Chassis->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponLeft->GetMeshComponent(), true);
+					m_Chassis->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
+
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(MeshComponent, true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponLeft->GetMeshComponent(), true);
+					m_Mobility->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
+
+					m_WeaponLeft->GetMeshComponent()->IgnoreComponentWhenMoving(MeshComponent, true);
+					m_WeaponLeft->GetMeshComponent()->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
+					m_WeaponLeft->GetMeshComponent()->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
+					m_WeaponLeft->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponRight->GetMeshComponent(), true);
+
+					m_WeaponRight->GetMeshComponent()->IgnoreComponentWhenMoving(MeshComponent, true);
+					m_WeaponRight->GetMeshComponent()->IgnoreComponentWhenMoving(m_Chassis->GetMeshComponent(), true);
+					m_WeaponRight->GetMeshComponent()->IgnoreComponentWhenMoving(m_Mobility->GetMeshComponent(), true);
+					m_WeaponRight->GetMeshComponent()->IgnoreComponentWhenMoving(m_WeaponLeft->GetMeshComponent(), true);
+				}
+				m_Mobility->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckMobility);
 				m_WeaponLeft->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponLeft);
 				m_WeaponRight->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckWeaponRight);
-				m_Mobility->GetMeshComponent()->WeldTo(m_Chassis->GetMeshComponent(), fnSckMobility);
 
-				MeshComponent->SetSimulatePhysics(true);
-				MeshComponent->SetEnableGravity(true);
-				*/
+				//Set the movementController's updated component
+				SetMCUpdatedComponent(m_Mobility->GetMeshComponent());
 			}
 		}
 	}
@@ -214,17 +216,33 @@ void ATasis::OnDeath()
 	//UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 }
 
-void ATasis::CaclulateMovementInput(float DeltaSeconds, FVector movementVector)
+void ATasis::SetMCUpdatedComponent(USceneComponent * NewUpdatedComponent)
 {
 	if (m_Mobility)
 	{
-		m_Mobility->CaclulateMovementInput(DeltaSeconds, movementVector);
+		USoulMovementComponent *MC = m_Mobility->FindComponentByClass<USoulMovementComponent>();
+		if (MC && RootComponent)
+		{
+			MC->SetUpdatedComponent(NewUpdatedComponent);
+		}
 	}
+}
+
+float ATasis::GetTotalMass()
+{
+	float totalMass = 0.0f;
+
+	totalMass += m_Mobility->GetMeshComponent()->GetMass();
+	totalMass += m_Chassis->GetMeshComponent()->GetMass();
+	totalMass += m_WeaponLeft->GetMeshComponent()->GetMass();
+	totalMass += m_WeaponRight->GetMeshComponent()->GetMass();
+
+	return totalMass;
 }
 
 void ATasis::CalculateAimInput(float DeltaSeconds, FVector aimVector)
 {
-	//This logic may belong in the Chassis module, similar to movement in the mobility module
+	//JV-TODO: This logic may belong in the Chassis module, similar to movement in the mobility module
 
 	// If we are pressing aim stick in a direction
 	if (aimVector.SizeSquared() > 0.0f)
@@ -232,7 +250,11 @@ void ATasis::CalculateAimInput(float DeltaSeconds, FVector aimVector)
 		const FRotator NewRotation = aimVector.Rotation();
 		if (m_Chassis)
 		{
+			auto mobRot = m_Mobility->GetMeshComponent()->GetComponentRotation();
+
 			m_Chassis->GetMeshComponent()->SetRelativeRotation(NewRotation);
+
+			m_Mobility->GetMeshComponent()->SetWorldRotation(mobRot, true);
 		}
 	}
 }

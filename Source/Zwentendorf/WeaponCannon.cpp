@@ -25,17 +25,6 @@ AWeaponCannon::AWeaponCannon()
 	bCanFire = true;
 }
 
-void AWeaponCannon::InitializeMesh()
-{
-	if (MeshComponent == nullptr)
-	{
-		UE_LOG(LogActor, Warning, TEXT("AWeaponCannon"));
-
-		MeshComponent->SetSimulatePhysics(true);
-		MeshComponent->SetEnableGravity(true);
-	}
-}
-
 void AWeaponCannon::BeginPlay()
 {
 	Super::BeginPlay();
@@ -43,8 +32,6 @@ void AWeaponCannon::BeginPlay()
 
 void AWeaponCannon::Activate()
 {
-	UE_LOG(LogActor, Warning, TEXT("Fire"));
-
 	// If we it's ok to fire again
 	if (bCanFire == true)
 	{

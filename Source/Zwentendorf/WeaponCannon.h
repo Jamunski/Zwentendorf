@@ -23,8 +23,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void InitializeMesh() override;
-
 	/** Handle for efficient management of ShotTimerExpired timer */
 	FTimerHandle TimerHandle_ShotTimerExpired;
 
