@@ -49,12 +49,24 @@ void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 	if (Controller && Controller->IsLocalController())
 	{
 		FVector InputVector;
-
+		
 		// apply input for local players but also for AI that's not following a navigation path at the moment
 		if (Controller->IsLocalPlayerController() || !Controller->IsFollowingAPath() || bUseAccelerationForPaths)
 		{
 			InputVector = GetInputVector(DeltaTime);
+			UE_LOG(LogActor, Warning, TEXT("%s GetInputVector X: %f, Y: %f, Z: %f"), *GetNameSafe(PossessedSoul), InputVector.X, InputVector.Y, InputVector.Z);
 		}
+		else
+		{
+
+			// BTMoveTo uses UNavMovementComponent::RequestDirectMove which updates the Velocity member of the movement component with the path direction.
+			InputVector = Velocity;
+			InputVector.Normalize();
+			InputVector.Z = 0.0f;
+			UE_LOG(LogActor, Warning, TEXT("%s Skip GetInputVector: X: %f, Y: %f, Z: %f"), *GetNameSafe(PossessedSoul), InputVector.X, InputVector.Y, InputVector.Z);
+		}
+
+		UE_LOG(LogActor, Warning, TEXT("Pass TickComponent"));
 
 		FVector PhysicsVelocity = PhysicsMesh->GetPhysicsLinearVelocity();
 
@@ -68,6 +80,8 @@ void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 		}
 
 		PhysicsMesh->SetPhysicsLinearVelocity(PhysicsVelocity);
+
+		//JV-TODO: Find out if MovementComponent::SlideAlongSurface will help you here... I think I will need to override and copy most of the function so that it will do the same logic but using SetPhysicsLinearVelocity instead of SafeMoveUpdatedComponent... If this isn't an easy fix, then it may be worth revising solution so that I am not using SetPhysicsLinearVelocity
 
 		Velocity = PhysicsMesh->GetPhysicsLinearVelocity();
 		UpdateComponentVelocity();
