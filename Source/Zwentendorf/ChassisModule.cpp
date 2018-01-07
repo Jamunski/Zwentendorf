@@ -8,3 +8,10 @@ AChassisModule::AChassisModule()
 {
 }
 
+float AChassisModule::TakeDamage(const float damage)
+{
+	HealthPoints -= damage;
+
+	return HealthPoints;
+}
+

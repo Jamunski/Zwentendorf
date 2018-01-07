@@ -49,6 +49,7 @@ public:
 	// Begin Actor Interface
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void BeginPlay() override;
 	// End Actor Interface
 
 	// Begin Soul Interface
@@ -73,6 +74,8 @@ public:
 	void AbilityX() override {};
 	void AbilityY() override {};
 	// End Soul Interface
+
+	void UpdateCoreColor();
 
 public:
 	/** Returns CameraComponent subobject **/

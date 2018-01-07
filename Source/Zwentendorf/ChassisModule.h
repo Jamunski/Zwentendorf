@@ -27,4 +27,6 @@ public:
 
 public:
 	AChassisModule();
+
+	virtual float TakeDamage(const float damage);
 };

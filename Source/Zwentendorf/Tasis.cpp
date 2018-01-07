@@ -17,6 +17,7 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
 
 
@@ -188,6 +189,19 @@ void ATasis::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 }
 
+void ATasis::BeginPlay()
+{
+	UMaterialInstanceDynamic *pCoreColorMaterialInstance = MeshComponent->CreateAndSetMaterialInstanceDynamic(0);
+
+	if (pCoreColorMaterialInstance)
+	{
+		FLinearColor color = { 0.0f, 1.0f, 0.0f, 1.0f };
+		pCoreColorMaterialInstance->SetVectorParameterValue(FName("Color"), color);
+
+		UE_LOG(LogActor, Warning, TEXT("pCoreColorMaterialInstance"));
+	}
+}
+
 const float ATasis::GetHealthPoints()
 {
 	if (m_Chassis)
@@ -201,12 +215,67 @@ float ATasis::ApplyDamage(const float damage)
 {
 	if (m_Chassis)
 	{
-		m_Chassis->HealthPoints -= damage;
+		float remainingHealth = m_Chassis->TakeDamage(damage);
 
-		return m_Chassis->HealthPoints;
+		UpdateCoreColor();
+
+		return remainingHealth;
 	}
 
 	return -1;
+}
+
+void ATasis::UpdateCoreColor()
+{
+	float healthPercentage = m_Chassis->HealthPoints / m_Chassis->MaximumHealthPoints;
+
+	FLinearColor finalColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	FLinearColor red = { 1.0f, 0.0f, 0.0f, 1.0f };
+	FLinearColor green = { 0.0f, 1.0f, 0.0f, 1.0f };
+	FLinearColor yellow = { 1.0f, 1.0f, 0.0f, 1.0f };
+
+	float colorLerpPercentage = 0.0f;
+
+	if (healthPercentage > 0.5f)
+	{
+		float max = 1.0f;
+		float min = 0.5f;
+		float range = max - min;
+
+		colorLerpPercentage = (healthPercentage - min) / range;
+
+		//Green to Yellow
+		finalColor = FLinearColor::LerpUsingHSV(yellow, green, colorLerpPercentage);
+	}
+	else if (healthPercentage > 0.1f)
+	{
+		float max = 0.5f;
+		float min = 0.1f;
+		float range = max - min;
+
+		colorLerpPercentage = (healthPercentage - min) / range;
+
+		//Yellow to Red
+		finalColor = FLinearColor::LerpUsingHSV(red, yellow, colorLerpPercentage);
+	}
+	else
+	{
+		float max = 0.1f;
+		float min = 0.0f;
+		float range = max - min;
+
+		colorLerpPercentage = (healthPercentage - min) / range;
+
+		//Red to Black
+		finalColor = FLinearColor::LerpUsingHSV(finalColor, red, colorLerpPercentage);
+	}
+
+	UMaterialInstanceDynamic *pCoreColorMaterialInstance = MeshComponent->CreateAndSetMaterialInstanceDynamic(0);
+
+	if (pCoreColorMaterialInstance)
+	{
+		pCoreColorMaterialInstance->SetVectorParameterValue(FName("Color"), finalColor);
+	}
 }
 
 void ATasis::OnDeath()
