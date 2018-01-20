@@ -55,6 +55,7 @@ public:
 	// Begin Soul Interface
 	virtual const float GetHealthPoints() override;
 	virtual float ApplyDamage(const float damage) override;
+	virtual bool AttemptEnergyConsumption(const float amount) override;
 
 	virtual void OnDeath() override;
 
@@ -70,10 +71,12 @@ public:
 	void RightTrigger() override {};
 
 	void Interact() override {};
-	void Dodge() override {};
+	void Evade() override;
 	void AbilityX() override {};
 	void AbilityY() override {};
 	// End Soul Interface
+
+	FEnergyContainer GetEnergyContainer();
 
 	void UpdateCoreColor();
 

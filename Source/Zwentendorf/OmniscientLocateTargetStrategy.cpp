@@ -16,8 +16,6 @@ const bool UOmniscientLocateTargetStrategy::ExecuteStrategy(ASoulAIController *s
 {
 	bool bSuccess = false;
 
-	UE_LOG(LogActor, Warning, TEXT("UOmniscientLocateTargetStrategy::ExecuteStrategy"));
-
 	if (soulAIController)
 	{
 		AActor *targetActor = UGameplayStatics::GetPlayerPawn(soulAIController->GetWorld(), 0);

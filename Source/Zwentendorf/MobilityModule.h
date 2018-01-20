@@ -23,4 +23,6 @@ public:
 	AMobilityModule();
 
 	virtual void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) PURE_VIRTUAL(AMobilityModule::CaclulateMovementInput, ;);
+
+	virtual void Evade();
 };

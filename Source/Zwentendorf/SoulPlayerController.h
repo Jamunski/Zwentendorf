@@ -47,7 +47,7 @@ private:
 	void RightTrigger();
 
 	void Interact();
-	void Dodge();
+	void Evade();
 	void AbilityX();
 	void AbilityY();
 	//Soul actions end

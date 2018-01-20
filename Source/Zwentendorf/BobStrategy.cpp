@@ -15,8 +15,6 @@ const bool UBobStrategy::ExecuteStrategy(ASoulAIController *soulAIController)
 {
 	bool bSuccess = false;
 
-	UE_LOG(LogActor, Warning, TEXT("UBobStrategy::ExecuteStrategy"));
-
 	if (soulAIController)
 	{
 		UBlackboardComponent* BlackboardComp = soulAIController->GetBlackboardComp();
@@ -36,4 +34,3 @@ const bool UBobStrategy::ExecuteStrategy(ASoulAIController *soulAIController)
 
 	return bSuccess;
 }
-

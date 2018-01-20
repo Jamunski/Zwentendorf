@@ -71,7 +71,7 @@ void ASoulPlayerController::SetupActionInput()
 
 	//// set up gameplay ability bindings
 	InputComponent->BindAction(InteractBinding, IE_Pressed, this, &ASoulPlayerController::Interact);
-	InputComponent->BindAction(DodgeBinding, IE_Pressed, this, &ASoulPlayerController::Dodge);
+	InputComponent->BindAction(DodgeBinding, IE_Pressed, this, &ASoulPlayerController::Evade);
 	InputComponent->BindAction(AbilityXBinding, IE_Pressed, this, &ASoulPlayerController::AbilityX);
 	InputComponent->BindAction(AbilityYBinding, IE_Pressed, this, &ASoulPlayerController::AbilityY);
 }
@@ -150,11 +150,12 @@ void ASoulPlayerController::Interact()
 	}
 }
 
-void ASoulPlayerController::Dodge()
+void ASoulPlayerController::Evade()
 {
+	UE_LOG(LogActor, Warning, TEXT("ASoulPlayerController::Evade"));
 	if (PossessedSoul)
 	{
-		PossessedSoul->Dodge();
+		PossessedSoul->Evade();
 	}
 }
 

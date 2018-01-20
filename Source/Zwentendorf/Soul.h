@@ -41,9 +41,11 @@ public:
 
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	virtual const float GetHealthPoints() PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f ;);
+	virtual const float GetHealthPoints() PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f; );
 
-	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f ;);
+	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f; );
+
+	virtual bool AttemptEnergyConsumption(const float amount) { return true; }; //JV-TODO: Should this be pure virtual?
 
 	virtual bool ExecuteStrategy(EStrategyType strategyType);
 
@@ -61,7 +63,7 @@ public:
 	virtual void RightTrigger() {};
 
 	virtual void Interact() {};
-	virtual void Dodge() {};
+	virtual void Evade() {};
 	virtual void AbilityX() {};
 	virtual void AbilityY() {};
 

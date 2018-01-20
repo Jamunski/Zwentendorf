@@ -10,6 +10,8 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "SoulMovementComponent.generated.h"
 
+class UTimelineComponent;
+
 /**
  * 
  */
@@ -24,10 +26,12 @@ class ZWENTENDORF_API USoulMovementComponent : public UPawnMovementComponent
 
 	//Begin UActorComponent Interface
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+	virtual void BeginPlay() override;
 	//End UActorComponent Interface
 
-	//Begin UMovementComponent Interface
 	virtual float GetMaxSpeed() const override { return MaxSpeed; }
+
+	void EvadeTimerExpired();
 
 public:
 	/** Overridden to allow registration of any USceneComponent* */
@@ -36,30 +40,67 @@ public:
 	/*Recursive function which travels up the hierarchy until it finds a Pawn. Returns nullptr if it fails to find a Pawn*/
 	virtual ASoul *GetParentSoul(USceneComponent* NewUpdatedComponent);
 
+	/*JV-TODO: Temporary location for this func. Should be move to another class which can create its own implementation for this*/
+	virtual void Evade();
+
+	UFUNCTION()
+	void EvadeTick(float val);
+
 protected:
 	virtual bool ResolvePenetrationImpl(const FVector& Adjustment, const FHitResult& Hit, const FQuat& NewRotation) override;
-	//End UMovementComponent Interface
+
+	/** Handle for efficient management of EvadeTimerExpired timer */
+	FTimerHandle TimerHandle_EvadeTimerExpired;
 
 public:
-	UPROPERTY(Category = "Strafe", EditAnywhere, BlueprintReadWrite)
+	// Movement Params
+	UPROPERTY(Category = Strafe, EditAnywhere, BlueprintReadWrite)
 		bool bStrafing;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoulMovement)
+	UPROPERTY(Category = SoulMovement, EditAnywhere, BlueprintReadWrite)
 		float MaxSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoulMovement)
+	UPROPERTY(Category = SoulMovement, EditAnywhere, BlueprintReadWrite)
 		float Acceleration;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoulMovement)
+	UPROPERTY(Category = SoulMovement, EditAnywhere, BlueprintReadWrite)
 		float Deceleration;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoulMovement, meta = (ClampMin = "0", UIMin = "0"))
+	UPROPERTY(Category = SoulMovement, EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
 		float TurningBoost;
+
+	// Evade Params
+	UPROPERTY(Category = Evade, EditAnywhere, BlueprintReadWrite)
+		float EvadeEnergyCost;
+
+	UPROPERTY(Category = Evade, EditAnywhere, BlueprintReadWrite)
+		float EvadeDistance;
+
+	UPROPERTY(Category = Evade, EditAnywhere, BlueprintReadWrite)
+		float EvadeDuration;
+
+	UPROPERTY(Category = Evade, EditAnywhere, BlueprintReadWrite)
+		float EvadeRecoveryDuration;
+
+	UPROPERTY(Category = Evade, EditAnywhere, BlueprintReadWrite)
+		float InvincibilityDuration;
 
 protected:
 
-	virtual FVector GetInputVector(float DeltaTime);
+	virtual FVector GetInputVector(bool bConsume);
 
 	UPROPERTY(Transient)
 		uint32 bPositionCorrected : 1;
+
+	FVector LastInputVector;
+
+	UTimelineComponent* MyTimeline;
+
+	UPROPERTY(Category = "Evade", EditAnywhere)
+		UCurveFloat* FloatCurve;
+
+	bool bIsEvading;
+	bool bCanEvade;
+
+	float distanceLastFrame;
 };
