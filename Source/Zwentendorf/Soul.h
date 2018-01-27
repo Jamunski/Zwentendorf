@@ -8,6 +8,9 @@
 #include "GameFramework/Pawn.h"
 #include "Soul.generated.h"
 
+class UBehaviorTree;
+class UStaticMeshComponent;
+
 UENUM(BlueprintType)
 enum class EStrategyType : uint8
 {
@@ -23,29 +26,15 @@ class ZWENTENDORF_API ASoul : public APawn
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Category = "AI")
-	class UBehaviorTree* BehaviorTree;
-
-	/* The mesh component */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		class UStaticMeshComponent* MeshComponent;
-
-protected:
-	UPROPERTY(EditAnywhere, Category = "AI")
-	TMap<EStrategyType, TSubclassOf<UStrategy> > StrategyMap;
-
-public:
 	ASoul();
-
-	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	virtual const float GetHealthPoints() PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f; );
-
 	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f; );
 
-	virtual bool AttemptEnergyConsumption(const float amount) { return true; }; //JV-TODO: Should this be pure virtual?
+	virtual const float GetHealthPoints() PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f; );
+
+	virtual bool AttemptEnergyConsumption(const float amount) { return false; };
 
 	virtual bool ExecuteStrategy(EStrategyType strategyType);
 
@@ -54,7 +43,6 @@ public:
 	virtual float GetTotalMass() { return MeshComponent->GetMass(); };
 
 	//Soul actions
-	virtual void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) {};
 	virtual void CalculateAimInput(float DeltaSeconds, FVector aimVector) {};
 
 	virtual void LeftShoulder() {};
@@ -67,6 +55,13 @@ public:
 	virtual void AbilityX() {};
 	virtual void AbilityY() {};
 
+	FORCEINLINE UStaticMeshComponent* GetMeshComponent() const { return MeshComponent; }
+
+	UPROPERTY(EditAnywhere, Category = "AI")
+		UBehaviorTree* BehaviorTree;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		UStaticMeshComponent* MeshComponent;
+
 protected:
 	void HandleDeath();
 
@@ -75,6 +70,6 @@ protected:
 	*/
 	virtual void OnDeath() {};
 
-public:
-	FORCEINLINE class UStaticMeshComponent* GetMeshComponent() const { return MeshComponent; }
+	UPROPERTY(EditAnywhere, Category = "AI")
+		TMap<EStrategyType, TSubclassOf<UStrategy> > StrategyMap;
 };

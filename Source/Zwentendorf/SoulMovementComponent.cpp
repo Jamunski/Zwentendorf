@@ -17,7 +17,7 @@ USoulMovementComponent::USoulMovementComponent(const FObjectInitializer& ObjectI
 	: Super(ObjectInitializer)
 	, bIsEvading(false)
 	, bCanEvade(true)
-	, distanceLastFrame(0.0f)
+	, fEvadeDstanceLastFrame(0.0f)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
@@ -176,7 +176,6 @@ void USoulMovementComponent::Evade()
 	{
 		UE_LOG(LogActor, Warning, TEXT("Evade"));
 
-		//JV-TODO: Attempt evasion
 		bool bEvasionSuccess = PossessedSoul->AttemptEnergyConsumption(EvadeEnergyCost);
 
 		if (bEvasionSuccess)
@@ -203,7 +202,7 @@ void USoulMovementComponent::EvadeTick(float val)
 	float targetDistance = EvadeDistance * val;
 
 	// Distance to travel this tick
-	float deltaDistance = targetDistance - distanceLastFrame;
+	float deltaDistance = targetDistance - fEvadeDstanceLastFrame;
 
 	FVector PhysicsVelocity = PhysicsMesh->GetPhysicsLinearVelocity();
 
@@ -224,7 +223,7 @@ void USoulMovementComponent::EvadeTick(float val)
 		UE_LOG(LogActor, Warning, TEXT("MyTimeline end"));
 
 		bIsEvading = false;
-		distanceLastFrame = 0.0f;
+		fEvadeDstanceLastFrame = 0.0f;
 		MyTimeline->Stop();
 
 		// Record and consume the input vector
@@ -237,7 +236,7 @@ void USoulMovementComponent::EvadeTick(float val)
 	{
 		PhysicsMesh->SetPhysicsLinearVelocity(PhysicsVelocity);
 
-		distanceLastFrame = targetDistance;
+		fEvadeDstanceLastFrame = targetDistance;
 	}
 }
 

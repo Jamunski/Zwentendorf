@@ -14,12 +14,6 @@ ASoul::ASoul()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 }
 
-void ASoul::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-	UE_LOG(LogActor, Warning, TEXT("PostEditChangeProperty"));
-}
-
 float ASoul::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
 	float healthPoints = GetHealthPoints();
@@ -54,7 +48,7 @@ bool ASoul::ExecuteStrategy(EStrategyType strategyType)
 			UStrategy *strategy = StrategyMap[strategyType].GetDefaultObject();
 			if (strategy)
 			{
-				//Pass the AI controller into the function...
+				// Pass the AI controller into the function...
 				return strategy->ExecuteStrategy(aiController);
 			}
 		}

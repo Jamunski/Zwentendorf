@@ -14,6 +14,3 @@ class AZwentendorfGameMode : public AGameModeBase
 public:
 	AZwentendorfGameMode();
 };
-
-
-

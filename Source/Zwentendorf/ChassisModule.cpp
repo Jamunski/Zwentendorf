@@ -2,6 +2,7 @@
 
 #include "ChassisModule.h"
 
+#include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"
 
 #include <EngineGlobals.h>
@@ -76,4 +77,12 @@ FEnergyContainer AChassisModule::RecoverEnergy(const float amount)
 	EnergyContainer.EnergyPool = EnergyContainer.EnergyPool + amount < EnergyContainer.MaximumEnergyPool ? EnergyContainer.EnergyPool + amount : EnergyContainer.MaximumEnergyPool;
 
 	return EnergyContainer;
+}
+
+void AChassisModule::CalculateAimInput(float DeltaSeconds, const FRotator &NewRotation)
+{
+	if (MeshComponent)
+	{
+		MeshComponent->SetRelativeRotation(NewRotation);
+	}
 }

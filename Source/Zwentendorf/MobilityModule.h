@@ -13,16 +13,8 @@ UCLASS(abstract)
 class ZWENTENDORF_API AMobilityModule : public AModule
 {
 	GENERATED_BODY()
-	
-public:
-	/* The speed our pawn moves around the level */
-	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
-		float MoveSpeed;
 
 public:
 	AMobilityModule();
-
-	virtual void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) PURE_VIRTUAL(AMobilityModule::CaclulateMovementInput, ;);
-
 	virtual void Evade();
 };
