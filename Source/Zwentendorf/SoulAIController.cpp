@@ -2,7 +2,6 @@
 
 #include "SoulAIController.h"
 
-#include "BasicSoul.h"
 #include "BotTargetPoint.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
