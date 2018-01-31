@@ -26,6 +26,6 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		class UStaticMeshComponent* MeshComponent;
-	UPROPERTY(Category = Soul, EditAnywhere)
+	UPROPERTY(Category = Soul, BlueprintReadOnly)
 		ASoul* m_Soul;
 };
