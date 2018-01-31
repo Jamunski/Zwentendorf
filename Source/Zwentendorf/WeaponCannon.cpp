@@ -2,7 +2,7 @@
 
 #include "WeaponCannon.h"
 
-#include "ProjectileCannon.h"
+#include "Projectile.h"
 
 #include "Components/StaticMeshComponent.h"
 #include "Engine/CollisionProfile.h"
@@ -16,10 +16,6 @@
 AWeaponCannon::AWeaponCannon()
 	: AWeaponModule()
 {
-	// Cache our sound effect
-	static ConstructorHelpers::FObjectFinder<USoundBase> FireAudio(TEXT("/Game/Audio/Weapon/TwinStickFire.TwinStickFire"));
-	FireSound = FireAudio.Object;
-
 	// Weapon
 	FireRate = 0.25f;
 	bCanFire = true;
@@ -49,7 +45,7 @@ void AWeaponCannon::Activate()
 			if (World != NULL)
 			{
 				// spawn the projectile
-				World->SpawnActor<AProjectileCannon>(SpawnLocation, FireRotation);
+				World->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, FireRotation);
 			}
 
 			bCanFire = false;

@@ -8,6 +8,8 @@
 #include "GameFramework/Actor.h"
 #include "WeaponCannon.generated.h"
 
+class AProjectile;
+
 UCLASS()
 class ZWENTENDORF_API AWeaponCannon : public AWeaponModule
 {
@@ -30,11 +32,10 @@ protected:
 	uint32 bCanFire : 1;
 
 public:
-	/* How fast the weapon will fire */
 	UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
 		float FireRate;
-
-	/** Sound to play each time we fire */
 	UPROPERTY(Category = Audio, EditAnywhere, BlueprintReadWrite)
 		class USoundBase* FireSound;
+	UPROPERTY(Category = Projectile, EditAnywhere)
+		TSubclassOf<AProjectile> ProjectileClass;
 };

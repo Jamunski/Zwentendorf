@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ProjectileCannon.generated.h"
+#include "Projectile.generated.h"
 
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
 
-UCLASS() //config=Game
-class AProjectileCannon : public AActor
+UCLASS()
+class AProjectile : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	AProjectileCannon();
+	AProjectile();
 
 	/** Function to handle the projectile hitting something */
 	UFUNCTION()
