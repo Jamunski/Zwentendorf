@@ -10,7 +10,6 @@ AModule::AModule()
 {
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
-	// JV-TODO: This causes the editor to crash
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	MeshComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 
@@ -18,13 +17,7 @@ AModule::AModule()
 	MeshComponent->SetEnableGravity(true);
 }
 
-void AModule::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-	UE_LOG(LogActor, Warning, TEXT("PostEditChangeProperty"));
-}
-
-void AModule::LinkSoul(APawn *soul)
+void AModule::LinkSoul(ASoul *soul)
 {
 	m_Soul = soul;
 }
@@ -39,7 +32,7 @@ float AModule::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 	}
 	else
 	{
-		//JV-TODO: Log error msg;
+		UE_LOG(LogActor, Error, TEXT("Module not attached to a Soul"));
 		HealthPoints = -1.0f;
 	}
 

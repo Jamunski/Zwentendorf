@@ -12,8 +12,6 @@
 
 ASoulAIController::ASoulAIController()
 {
-	//Initialize BehaviorTreeComponent, BlackboardComponent and the corresponding key
-
 	BehaviorComp = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorComp"));
 
 	BlackboardComp = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComp"));
@@ -50,14 +48,6 @@ void ASoulAIController::Possess(APawn* Pawn)
 void ASoulAIController::SetTarget(AActor *Target)
 {
 	TargetActor = Target;
-}
-
-void ASoulAIController::FireWeapon()
-{
-	if (PossessedSoul->IsA(ABasicSoul::StaticClass()))
-	{
-		Cast<ABasicSoul>(PossessedSoul)->FireWeapon();
-	}
 }
 
 void ASoulAIController::ExecuteStrategy(EStrategyType strategy)

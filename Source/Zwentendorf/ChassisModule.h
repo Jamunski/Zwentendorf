@@ -17,19 +17,15 @@ public:
 	/* The maximum energy points of the robot*/
 	UPROPERTY(Category = Energy, EditAnywhere, BlueprintReadWrite)
 		float MaximumEnergyPool;
-
 	/* The current energy points of the robot*/
 	UPROPERTY(Category = Energy, EditAnywhere, BlueprintReadWrite)
 		float EnergyPool;
-
 	/* The rate in seconds at which energyPool recovers*/
 	UPROPERTY(Category = Energy, EditAnywhere, BlueprintReadWrite)
 		float EnergyRecoverySec;
-
 	/* The maximum energyReserve points of the robot*/
 	UPROPERTY(Category = Energy, EditAnywhere, BlueprintReadWrite)
 		float MaximumEnergyReserve;
-
 	/* The current energyReserve points of the robot*/
 	UPROPERTY(Category = Energy, EditAnywhere, BlueprintReadWrite)
 		float EnergyReserve;
@@ -43,25 +39,6 @@ class ZWENTENDORF_API AChassisModule : public AModule
 {
 	GENERATED_BODY()
 	
-private:
-	void EnergyDepletionTimerExpired();
-
-	/** Handle for efficient management of RegenerateEnergyTimerExpired timer */
-	FTimerHandle TimerHandle_EnergyDepletionRecoveryTimerExpired;
-
-public:
-	/* The maximum health points of the robot*/
-	UPROPERTY(Category = Health, EditAnywhere, BlueprintReadWrite)
-		float MaximumHealthPoints;
-
-	/* The current health points of the robot*/
-	UPROPERTY(Category = Health, EditAnywhere, BlueprintReadWrite)
-		float HealthPoints;
-
-	/* The EnergyContainer of the robot*/
-	UPROPERTY(Category = Energy, EditAnywhere, BlueprintReadWrite)
-		FEnergyContainer EnergyContainer;
-
 public:
 	AChassisModule();
 
@@ -75,7 +52,22 @@ public:
 
 	virtual FEnergyContainer RecoverEnergy(const float amount);
 
-private:
+	virtual void CalculateAimInput(float DeltaSeconds, const FRotator &NewRotation);
 
+	/* The maximum health points of the robot*/
+	UPROPERTY(Category = Health, EditAnywhere, BlueprintReadWrite)
+		float MaximumHealthPoints;
+	/* The current health points of the robot*/
+	UPROPERTY(Category = Health, EditAnywhere, BlueprintReadWrite)
+		float HealthPoints;
+	/* The EnergyContainer of the robot*/
+	UPROPERTY(Category = Energy, EditAnywhere, BlueprintReadWrite)
+		FEnergyContainer EnergyContainer;
+
+private:
+	void EnergyDepletionTimerExpired();
+
+	/** Handle for efficient management of RegenerateEnergyTimerExpired timer */
+	FTimerHandle TimerHandle_EnergyDepletionRecoveryTimerExpired;
 	bool bRegenerateEnergy;
 };

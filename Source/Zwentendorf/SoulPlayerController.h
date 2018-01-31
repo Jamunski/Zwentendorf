@@ -16,10 +16,6 @@ class ZWENTENDORF_API ASoulPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Soul")
-		ASoul *PossessedSoul;
-
 public:
 	ASoulPlayerController();
 
@@ -29,30 +25,6 @@ public:
 	virtual void Possess(APawn* Pawn) override;
 	//End PlayerController interface
 
-private:
-	//Input Setup
-	void SetupActionInput();
-	void SetupAxisInput();
-	void SetupAxisInputKeyboard();
-	void SetupAxisInputGamepad();
-	//Input Setup end
-
-	//Soul actions
-	void CaclulateMovementInput(float DeltaSeconds, FVector movementVector);
-	void CalculateAimInput(float DeltaSeconds, FVector aimVector);
-
-	void LeftShoulder();
-	void RightShoulder();
-	void LeftTrigger();
-	void RightTrigger();
-
-	void Interact();
-	void Evade();
-	void AbilityX();
-	void AbilityY();
-	//Soul actions end
-
-public:
 	// Static names for axis bindings
 	static const FName MoveForwardBinding;
 	static const FName MoveRightBinding;
@@ -68,4 +40,30 @@ public:
 	static const FName DodgeBinding;
 	static const FName AbilityXBinding;
 	static const FName AbilityYBinding;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Soul")
+		ASoul *PossessedSoul;
+
+private:
+	//Input Setup
+	void SetupActionInput();
+	void SetupAxisInput();
+	void SetupAxisInputKeyboard();
+	void SetupAxisInputGamepad();
+	//Input Setup end
+
+	//Soul actions
+	void CalculateAimInput(float DeltaSeconds, FVector aimVector);
+
+	void LeftShoulder();
+	void RightShoulder();
+	void LeftTrigger();
+	void RightTrigger();
+
+	void Interact();
+	void Evade();
+	void AbilityX();
+	void AbilityY();
+	//Soul actions end
 };

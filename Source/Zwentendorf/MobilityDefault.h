@@ -16,8 +16,6 @@ class ZWENTENDORF_API AMobilityDefault : public AMobilityModule
 public:
 	AMobilityDefault();
 
-	void CaclulateMovementInput(float DeltaSeconds, FVector movementVector) override;
-
 protected:
 	virtual void BeginPlay() override;
 };

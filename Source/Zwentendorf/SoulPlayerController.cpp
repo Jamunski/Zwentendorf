@@ -29,7 +29,6 @@ void ASoulPlayerController::Tick(float DeltaSeconds)
 	if (PossessedSoul)
 	{
 		FVector movementVector{GetInputAxisValue(MoveForwardBinding), GetInputAxisValue(MoveRightBinding), 0.0f};
-		//CaclulateMovementInput(DeltaSeconds, movementVector);
 		PossessedSoul->AddMovementInput(movementVector);
 
 		FVector aimVector{ GetInputAxisValue(AimForwardBinding), GetInputAxisValue(AimRightBinding), 0.0f };
@@ -94,14 +93,6 @@ void ASoulPlayerController::SetupAxisInputGamepad()
 }
 
 /*_______________________ Soul Actioons _______________________*/
-void ASoulPlayerController::CaclulateMovementInput(float DeltaSeconds, FVector movementVector)
-{
-	if (PossessedSoul)
-	{
-		PossessedSoul->CaclulateMovementInput(DeltaSeconds, movementVector);
-	}
-}
-
 void ASoulPlayerController::CalculateAimInput(float DeltaSeconds, FVector aimVector)
 {
 	if (PossessedSoul)

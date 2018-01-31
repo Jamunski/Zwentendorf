@@ -9,7 +9,6 @@
 AChassisDefault::AChassisDefault()
 	: AChassisModule()
 {
-	//JV-TODO: Create a function in ChassisModule to do this sort of thing at some point
 	//Initialize health points
 	MaximumHealthPoints = 1000.0f;
 	HealthPoints = MaximumHealthPoints;

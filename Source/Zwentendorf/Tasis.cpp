@@ -22,8 +22,6 @@
 
 ATasis::ATasis()
 {
-	UE_LOG(LogActor, Warning, TEXT("ATasis"));
-
 	// Create the mesh component
 	if (MeshComponent)
 	{
@@ -46,8 +44,6 @@ ATasis::ATasis()
 
 void ATasis::PostInitializeComponents()
 {
-	UE_LOG(LogActor, Warning, TEXT("PostInitializeComponents"));
-
 	Super::PostInitializeComponents();
 
 	//Creating and attaching modules to sockets
@@ -94,11 +90,7 @@ void ATasis::PostInitializeComponents()
 				FName fnSckChassis = TEXT("SCK_Chassis");
 				if (MeshComponent && MeshComponent->DoesSocketExist(fnSckChassis))
 				{
-					UE_LOG(LogActor, Warning, TEXT("SCK_Chassis Exists"));
-
 					bAttachSuccessful = m_Chassis->GetRootComponent()->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckChassis);
-
-					UE_LOG(LogActor, Warning, TEXT("SCK_Chassis %d"), bAttachSuccessful);
 
 					Children.Add(m_Chassis);
 				}
@@ -109,11 +101,7 @@ void ATasis::PostInitializeComponents()
 					FName fnSckMobility = TEXT("SCK_Mobility");
 					if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckMobility))
 					{
-						UE_LOG(LogActor, Warning, TEXT("SCK_Mobility Exists"));
-
 						bAttachSuccessful = m_Mobility->GetRootComponent()->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckMobility);
-
-						UE_LOG(LogActor, Warning, TEXT("SCK_Mobility %d"), bAttachSuccessful);
 
 						Children.Add(m_Mobility);
 					}
@@ -122,11 +110,7 @@ void ATasis::PostInitializeComponents()
 					FName fnSckWeaponLeft = TEXT("SCK_WeaponLeft");
 					if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponLeft))
 					{
-						UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft Exists"));
-
 						bAttachSuccessful = m_WeaponLeft->GetRootComponent()->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponLeft);
-
-						UE_LOG(LogActor, Warning, TEXT("SCK_WeaponLeft %d"), bAttachSuccessful);
 
 						Children.Add(m_WeaponLeft);
 					}
@@ -134,11 +118,7 @@ void ATasis::PostInitializeComponents()
 					FName fnSckWeaponRight = TEXT("SCK_WeaponRight");
 					if (m_Chassis->GetMeshComponent()->DoesSocketExist(fnSckWeaponRight))
 					{
-						UE_LOG(LogActor, Warning, TEXT("SCK_WeaponRight Exists"));
-
 						bAttachSuccessful = m_WeaponRight->GetRootComponent()->AttachToComponent(m_Chassis->GetMeshComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale, fnSckWeaponRight);
-
-						UE_LOG(LogActor, Warning, TEXT("SCK_WeaponRight %d"), bAttachSuccessful);
 
 						Children.Add(m_WeaponRight);
 					}
@@ -199,8 +179,6 @@ void ATasis::BeginPlay()
 	{
 		FLinearColor color = { 0.0f, 1.0f, 0.0f, 1.0f };
 		pCoreColorMaterialInstance->SetVectorParameterValue(FName("Color"), color);
-
-		UE_LOG(LogActor, Warning, TEXT("pCoreColorMaterialInstance"));
 	}
 }
 
@@ -260,10 +238,10 @@ void ATasis::UpdateCoreColor()
 
 	float colorLerpPercentage = 0.0f;
 
-	if (healthPercentage > 0.5f)
+	if (healthPercentage > 0.70f)
 	{
 		float max = 1.0f;
-		float min = 0.5f;
+		float min = 0.70f;
 		float range = max - min;
 
 		colorLerpPercentage = (healthPercentage - min) / range;
@@ -273,8 +251,8 @@ void ATasis::UpdateCoreColor()
 	}
 	else if (healthPercentage > 0.1f)
 	{
-		float max = 0.5f;
-		float min = 0.1f;
+		float max = 0.70f;
+		float min = 0.2f;
 		float range = max - min;
 
 		colorLerpPercentage = (healthPercentage - min) / range;
@@ -284,7 +262,7 @@ void ATasis::UpdateCoreColor()
 	}
 	else
 	{
-		float max = 0.1f;
+		float max = 0.2f;
 		float min = 0.0f;
 		float range = max - min;
 
@@ -336,17 +314,16 @@ float ATasis::GetTotalMass()
 
 void ATasis::CalculateAimInput(float DeltaSeconds, FVector aimVector)
 {
-	//JV-TODO: This logic may belong in the Chassis module, similar to movement in the mobility module
-
 	// If we are pressing aim stick in a direction
 	if (aimVector.SizeSquared() > 0.0f)
 	{
 		const FRotator NewRotation = aimVector.Rotation();
 		if (m_Chassis)
 		{
+			// Collect the mobility previous rotation so that we can reset it whenever we rotate the chassis
 			auto mobRot = m_Mobility->GetMeshComponent()->GetComponentRotation();
 
-			m_Chassis->GetMeshComponent()->SetRelativeRotation(NewRotation);
+			m_Chassis->CalculateAimInput(DeltaSeconds, NewRotation);
 
 			m_Mobility->GetMeshComponent()->SetWorldRotation(mobRot, true);
 		}
