@@ -13,4 +13,9 @@ class AZwentendorfGameMode : public AGameModeBase
 
 public:
 	AZwentendorfGameMode();
+
+	virtual void BeginPlay() override;
+
+	UPROPERTY(Category = Players, EditDefaultsOnly)
+		int NumberOfPlayers;
 };
