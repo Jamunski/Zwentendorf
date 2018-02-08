@@ -72,13 +72,13 @@ void USoulMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 		{
 			// BTMoveTo uses UNavMovementComponent::RequestDirectMove which updates the Velocity member of the movement component with the path direction.
 			InputVector = Velocity;
-			InputVector.Normalize();
 			InputVector.Z = 0.0f;
+			InputVector.Normalize();
 		}
 
 		FVector PhysicsVelocity = PhysicsMesh->GetPhysicsLinearVelocity();
 
-		if (!InputVector.IsNearlyZero(1e-6f))
+		//if (!InputVector.IsNearlyZero(1e-6f))
 		{
 			auto prevGravity = PhysicsVelocity.Z;
 
