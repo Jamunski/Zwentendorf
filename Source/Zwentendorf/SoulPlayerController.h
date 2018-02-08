@@ -66,4 +66,6 @@ private:
 	void AbilityX();
 	void AbilityY();
 	//Soul actions end
+
+	bool bUsingGamepad;
 };

@@ -2,6 +2,8 @@
 
 #include "SoulPlayerController.h"
 
+#include <Runtime/Engine/Classes/Engine/LocalPlayer.h>
+#include <Runtime/Engine/Public/DrawDebugHelpers.h>
 
 const FName ASoulPlayerController::MoveForwardBinding("MoveForward");
 const FName ASoulPlayerController::MoveRightBinding("MoveRight");
@@ -20,6 +22,9 @@ const FName ASoulPlayerController::AbilityYBinding("Ability-Y");
 ASoulPlayerController::ASoulPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bUsingGamepad = false;
+
+	bShowMouseCursor = true;
 }
 
 void ASoulPlayerController::Tick(float DeltaSeconds)
@@ -28,7 +33,7 @@ void ASoulPlayerController::Tick(float DeltaSeconds)
 
 	if (PossessedSoul)
 	{
-		FVector movementVector{GetInputAxisValue(MoveForwardBinding), GetInputAxisValue(MoveRightBinding), 0.0f};
+		FVector movementVector{ GetInputAxisValue(MoveForwardBinding), GetInputAxisValue(MoveRightBinding), 0.0f };
 		PossessedSoul->AddMovementInput(movementVector);
 
 		FVector aimVector{ GetInputAxisValue(AimForwardBinding), GetInputAxisValue(AimRightBinding), 0.0f };
@@ -97,7 +102,39 @@ void ASoulPlayerController::CalculateAimInput(float DeltaSeconds, FVector aimVec
 {
 	if (PossessedSoul)
 	{
-		PossessedSoul->CalculateAimInput(DeltaSeconds, aimVector);
+		if (bUsingGamepad)
+		{
+			PossessedSoul->CalculateAimInput(DeltaSeconds, aimVector);
+		}
+		else
+		{
+			FVector mouseLocation;
+			FVector worldDirection;
+
+			FVector actorLocation = PossessedSoul->GetActorLocation();
+
+			ULocalPlayer* const LocalPlayer = GetLocalPlayer();
+			if (LocalPlayer && LocalPlayer->ViewportClient)
+			{
+				FVector2D MousePosition = LocalPlayer->ViewportClient->GetMousePosition();
+				FVector2D ScreenPosition = FVector2D::ZeroVector;
+
+				FVector actorLocation = PossessedSoul->GetActorLocation();
+
+				if (ProjectWorldLocationToScreen(actorLocation, ScreenPosition))
+				{
+					FVector dirVec = FVector::ZeroVector;
+					dirVec.Y = (MousePosition.X - ScreenPosition.X);
+					dirVec.X = -(MousePosition.Y - ScreenPosition.Y);
+
+					PossessedSoul->CalculateAimInput(DeltaSeconds, dirVec);
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogActor, Warning, TEXT("CalculateAimInput POOP"));
 	}
 }
 
