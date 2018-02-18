@@ -38,3 +38,8 @@ float AModule::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 
 	return HealthPoints;
 }
+
+ASoul *AModule::GetAttachedSoul()
+{
+	return m_Soul;
+}

@@ -30,7 +30,7 @@ public:
 
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f; );
+	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::ApplyDamage, return 0.0f; );
 
 	virtual const float GetHealthPoints() PURE_VIRTUAL(ASoul::GetHealthPoints, return 0.0f; );
 

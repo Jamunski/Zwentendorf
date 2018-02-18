@@ -28,4 +28,7 @@ protected:
 		class UStaticMeshComponent* MeshComponent;
 	UPROPERTY(Category = Soul, BlueprintReadOnly)
 		ASoul* m_Soul;
+	/** Returns the soul that this module is attached to. Returns null if this module is not attached to a soul**/
+	UFUNCTION(BlueprintCallable, Category = "Soul")
+		virtual ASoul *GetAttachedSoul();
 };
