@@ -30,8 +30,9 @@ AAISoul::AAISoul()
 	bCanFire = true;
 	
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	RootComponent = SceneComponent;
-	SceneComponent->SetupAttachment(MeshComponent);
+	//RootComponent = SceneComponent;
+	
+	MeshComponent->SetupAttachment(SceneComponent);
 }
 
 void AAISoul::Attack()
