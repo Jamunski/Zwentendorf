@@ -1,20 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "AISoul.h"
-#include "DrawDebugHelpers.h"
 
 #include "Projectile.h"
 
+#include "Components/SceneComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "DrawDebugHelpers.h"
 #include "Engine/CollisionProfile.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshSocket.h"
+#include "GameFramework/FloatingPawnMovement.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "TimerManager.h"
-
-#include "Components/StaticMeshComponent.h"
-#include "GameFramework/FloatingPawnMovement.h"
 #include "UObject/ConstructorHelpers.h"
-#include "Components/SceneComponent.h"
 
 #include <EngineGlobals.h>
 #include <Runtime/Engine/Classes/Engine/Engine.h>
@@ -30,7 +29,6 @@ AAISoul::AAISoul()
 	bCanFire = true;
 	
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	//RootComponent = SceneComponent;
 	
 	MeshComponent->SetupAttachment(SceneComponent);
 }
@@ -43,7 +41,7 @@ void AAISoul::Attack()
 		if (GetMeshComponent())
 		{
 			// Spawn projectile at an offset using cannon dir vector
-			const UStaticMeshSocket* fireDirectionSocket = GetMeshComponent()->GetSocketByName("DIR_ProjectileSpawn"); //JV-TODO: Correct this name in the mesh, also account for the radius of the projectile in the mesh file. If you re-export shooting will be broken again...
+			const UStaticMeshSocket* fireDirectionSocket = GetMeshComponent()->GetSocketByName("DIR_ProjectileSpawn");
 			FTransform socketTransform;
 			bool success = fireDirectionSocket->GetSocketTransform(socketTransform, GetMeshComponent());
 			
@@ -68,7 +66,6 @@ void AAISoul::Attack()
 				UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 			}
 
-			//bCanFire = false;
 		}
 	}
 
