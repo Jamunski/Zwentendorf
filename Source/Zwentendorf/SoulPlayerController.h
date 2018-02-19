@@ -26,20 +26,22 @@ public:
 	//End PlayerController interface
 
 	// Static names for axis bindings
-	static const FName MoveForwardBinding;
-	static const FName MoveRightBinding;
-	static const FName AimForwardBinding;
-	static const FName AimRightBinding;
+	static const FName Binding_MoveForward;
+	static const FName Binding_MoveRight;
+	static const FName Binding_AimForward;
+	static const FName Binding_AimRight;
 
 	// Static names for action bindings
-	static const FName LeftShoulderBinding;
-	static const FName RightShoulderBinding;
-	static const FName LeftTriggerBinding;
-	static const FName RightTriggerBinding;
-	static const FName InteractBinding;
-	static const FName DodgeBinding;
-	static const FName AbilityXBinding;
-	static const FName AbilityYBinding;
+	static const FName Binding_ChassisOne;
+	static const FName Binding_ChassisTwo;
+	static const FName Binding_ChassisThree;
+	static const FName Binding_ChassisFour;
+	static const FName Binding_ChassisFive;
+	static const FName Binding_ChassisSix;
+	static const FName Binding_Interact;
+	static const FName Binding_Evade;
+
+	static const FName Binding_Pause;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Soul")
@@ -55,17 +57,32 @@ private:
 
 	//Soul actions
 	void CalculateAimInput(float DeltaSeconds, FVector aimVector);
+	void CalculateGamepadAimInput(float DeltaSeconds, FVector aimVector);
+	void CalculateMouseAimInput(float DeltaSeconds, FVector aimVector);
 
-	void LeftShoulder();
-	void RightShoulder();
-	void LeftTrigger();
-	void RightTrigger();
+	void ChassisSlot_One_Pressed();
+	void ChassisSlot_One_Released() {};
+	void ChassisSlot_Two_Pressed();
+	void ChassisSlot_Two_Released() {};
+	void ChassisSlot_Three_Pressed();
+	void ChassisSlot_Three_Released() {};
+	void ChassisSlot_Four_Pressed();
+	void ChassisSlot_Four_Released() {};
+	void ChassisSlot_Five_Pressed();
+	void ChassisSlot_Five_Released() {};
+	void ChassisSlot_Six_Pressed();
+	void ChassisSlot_Six_Released() {};
 
-	void Interact();
-	void Evade();
-	void AbilityX();
-	void AbilityY();
+	void Interact_Pressed();
+	void Interact_Released() {};
+	void Evade_Pressed();
+	void Evade_Released() {};
+
+	void Pause_Pressed();
+	void Pause_Released() {};
+	
 	//Soul actions end
 
 	bool bUsingGamepad;
+	bool bWaitingForInput;
 };

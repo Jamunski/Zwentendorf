@@ -5,5 +5,9 @@
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, Zwentendorf, "Zwentendorf" );
 
-DEFINE_LOG_CATEGORY(LogZwentendorf)
+DEFINE_LOG_CATEGORY(LogZwentendorf);
+
+DEFINE_LOG_CATEGORY(LogAI);
+DEFINE_LOG_CATEGORY(LogSoul);
+DEFINE_LOG_CATEGORY(LogTasis);
  

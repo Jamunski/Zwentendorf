@@ -39,15 +39,23 @@ public:
 	// Soul Actions
 	void CalculateAimInput(float DeltaSeconds, FVector aimVector) override;
 
-	void LeftShoulder() override;
-	void RightShoulder() override;
-	void LeftTrigger() override {};
-	void RightTrigger() override {};
+	void ChassisSlot_One_Pressed() override;
+	void ChassisSlot_One_Released() {};
+	void ChassisSlot_Two_Pressed() override;
+	void ChassisSlot_Two_Released() {};
+	void ChassisSlot_Three_Pressed() {};
+	void ChassisSlot_Three_Released() {};
+	void ChassisSlot_Four_Pressed() {};
+	void ChassisSlot_Four_Released() {};
+	void ChassisSlot_Five_Pressed() {};
+	void ChassisSlot_Five_Released() {};
+	void ChassisSlot_Six_Pressed() {};
+	void ChassisSlot_Six_Released() {};
 
-	void Interact() override {};
-	void Evade() override;
-	void AbilityX() override {};
-	void AbilityY() override {};
+	void Interact_Pressed() {};
+	void Interact_Released() {};
+	void Evade_Pressed() override;
+	void Evade_Released() {};
 
 	FORCEINLINE class UCameraComponent* GetCameraComponent() const { return CameraComponent; }
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

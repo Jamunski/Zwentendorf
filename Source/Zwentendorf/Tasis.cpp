@@ -332,7 +332,7 @@ void ATasis::CalculateAimInput(float DeltaSeconds, FVector aimVector)
 
 ////////////////////////////ActionBindings////////////////////////////
 
-void ATasis::LeftShoulder()
+void ATasis::ChassisSlot_One_Pressed()
 {
 	if (m_WeaponLeft)
 	{
@@ -340,7 +340,7 @@ void ATasis::LeftShoulder()
 	}
 }
 
-void ATasis::RightShoulder()
+void ATasis::ChassisSlot_Two_Pressed()
 {
 	if (m_WeaponRight)
 	{
@@ -348,7 +348,7 @@ void ATasis::RightShoulder()
 	}
 }
 
-void ATasis::Evade()
+void ATasis::Evade_Pressed()
 {
 	if (m_Mobility)
 	{
