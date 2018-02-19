@@ -106,7 +106,7 @@ void ASoulPlayerController::CalculateAimInput(float DeltaSeconds, FVector aimVec
 		{
 			PossessedSoul->CalculateAimInput(DeltaSeconds, aimVector);
 		}
-		else
+		else //JV-TODO: Move this logic somewhere else???
 		{
 			FVector mouseLocation;
 			FVector worldDirection;
