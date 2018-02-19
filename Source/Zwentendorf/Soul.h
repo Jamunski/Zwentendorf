@@ -45,15 +45,23 @@ public:
 	//Soul actions
 	virtual void CalculateAimInput(float DeltaSeconds, FVector aimVector) {};
 
-	virtual void LeftShoulder() {};
-	virtual void RightShoulder() {};
-	virtual void LeftTrigger() {};
-	virtual void RightTrigger() {};
+	virtual void ChassisSlot_One_Pressed() {};
+	virtual void ChassisSlot_One_Released() {};
+	virtual void ChassisSlot_Two_Pressed() {};
+	virtual void ChassisSlot_Two_Released() {};
+	virtual void ChassisSlot_Three_Pressed() {};
+	virtual void ChassisSlot_Three_Released() {};
+	virtual void ChassisSlot_Four_Pressed() {};
+	virtual void ChassisSlot_Four_Released() {};
+	virtual void ChassisSlot_Five_Pressed() {};
+	virtual void ChassisSlot_Five_Released() {};
+	virtual void ChassisSlot_Six_Pressed() {};
+	virtual void ChassisSlot_Six_Released() {};
 
-	virtual void Interact() {};
-	virtual void Evade() {};
-	virtual void AbilityX() {};
-	virtual void AbilityY() {};
+	virtual void Interact_Pressed() {};
+	virtual void Interact_Released() {};
+	virtual void Evade_Pressed() {};
+	virtual void Evade_Released() {};
 
 	FORCEINLINE UStaticMeshComponent* GetMeshComponent() const { return MeshComponent; }
 

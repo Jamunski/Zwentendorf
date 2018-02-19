@@ -2,6 +2,8 @@
 
 #include "SoulMovementComponent.h"
 
+#include "Zwentendorf.h"
+
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
@@ -174,8 +176,6 @@ void USoulMovementComponent::Evade()
 	}
 	if (MyTimeline)
 	{
-		UE_LOG(LogActor, Warning, TEXT("Evade"));
-
 		bool bEvasionSuccess = PossessedSoul->AttemptEnergyConsumption(EvadeEnergyCost);
 
 		if (bEvasionSuccess)
@@ -191,7 +191,7 @@ void USoulMovementComponent::Evade()
 	}
 	else
 	{
-		UE_LOG(LogActor, Warning, TEXT("MyTimeline null"));
+		UE_LOG(LogSoul, Error, TEXT("MyTimeline null"));
 	}
 }
 
@@ -220,7 +220,7 @@ void USoulMovementComponent::EvadeTick(float val)
 
 	if (val >= 1.0f - DBL_EPSILON)
 	{
-		UE_LOG(LogActor, Warning, TEXT("MyTimeline end"));
+		UE_LOG(LogSoul, Log, TEXT("MyTimeline end"));
 
 		bIsEvading = false;
 		fEvadeDstanceLastFrame = 0.0f;
