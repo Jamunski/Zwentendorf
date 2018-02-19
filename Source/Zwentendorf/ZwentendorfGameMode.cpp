@@ -4,11 +4,12 @@
 #include "Tasis.h"
 #include "SoulPlayerController.h"
 
+#include <Runtime/Engine/Classes/Engine/LocalPlayer.h>
 #include <Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 
 AZwentendorfGameMode::AZwentendorfGameMode()
 {
-	NumberOfPlayers = 1;
+	NumberOfPlayers = 8;
 
 	// set default pawn class to our character class
 	DefaultPawnClass = ATasis::StaticClass();
@@ -20,13 +21,13 @@ void AZwentendorfGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//JV-TODO: Get the number of players who want to play the game and create a player object for each of them
-	
-	int createdPlayers = 1;
+	// get how many players have already been created
+	int createdPlayers = GetNumPlayers();
 
+	// if the number of created players is less than the number of players we want for this game mode, create more...
 	while (createdPlayers < NumberOfPlayers)
 	{
-		UGameplayStatics::CreatePlayer(GetWorld(), -1, true);
+		auto playerController = UGameplayStatics::CreatePlayer(GetWorld(), -1, true);
 		createdPlayers++;
 	}
 }
