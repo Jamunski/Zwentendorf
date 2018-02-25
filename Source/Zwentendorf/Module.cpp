@@ -11,7 +11,7 @@ AModule::AModule()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	MeshComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	MeshComponent->SetupAttachment(RootComponent);
 
 	MeshComponent->SetSimulatePhysics(true);
 	MeshComponent->SetEnableGravity(true);

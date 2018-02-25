@@ -28,6 +28,11 @@ class ZWENTENDORF_API ASoul : public APawn
 public:
 	ASoul();
 
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
+
+	virtual bool IsPossessed();
+
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual float ApplyDamage(const float damage) PURE_VIRTUAL(ASoul::ApplyDamage, return 0.0f; );
@@ -77,6 +82,9 @@ protected:
 	brief implement to add custom death logic
 	*/
 	virtual void OnDeath() {};
+
+	UPROPERTY(Category = Controller, VisibleAnywhere)
+		bool bIsPossessed;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 		TMap<EStrategyType, TSubclassOf<UStrategy> > StrategyMap;

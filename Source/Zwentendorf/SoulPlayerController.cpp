@@ -2,8 +2,15 @@
 
 #include "SoulPlayerController.h"
 
+#include "ZwentendorfGameMode.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Classes/Engine/World.h"
+
 #include <Runtime/Engine/Classes/Engine/LocalPlayer.h>
 #include <Runtime/Engine/Public/DrawDebugHelpers.h>
+
+const FName ASoulPlayerController::Binding_AnyKeyButton("Any_KeyButton");
 
 const FName ASoulPlayerController::Binding_MoveForward("MoveForward");
 const FName ASoulPlayerController::Binding_MoveRight("MoveRight");
@@ -25,6 +32,7 @@ ASoulPlayerController::ASoulPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bUsingGamepad = false;
+	bWaitingForInput = true;
 
 	bShowMouseCursor = true;
 }
@@ -49,10 +57,45 @@ void ASoulPlayerController::SetupInputComponent()
 
 	check(InputComponent);
 
+	if (bWaitingForInput)
+	{
+		SetupWaitingForInput(true);
+	}
+	else
+	{
+		BindGameplayInput();
+	}
+}
+
+void ASoulPlayerController::BindGameplayInput()
+{
+	UE_LOG(LogInput, Log, TEXT("BindGameplayInput: %s, ControllerID: %d"), *GetName(), GetLocalPlayer()->GetControllerId());
+
 	SetupActionInput();
 	SetupAxisInput();
 	SetupAxisInputKeyboard();
 	SetupAxisInputGamepad();
+}
+
+void ASoulPlayerController::UnbindGameplayInput(bool bShouldWaitForInput)
+{
+	UE_LOG(LogInput, Log, TEXT("UnbindGameplayInput $s, ControllerID: %d"), *GetName(), GetLocalPlayer()->GetControllerId());
+
+	InputComponent->ClearBindingValues();
+	InputComponent->ClearActionBindings();
+
+	SetupWaitingForInput(bShouldWaitForInput);
+}
+
+void ASoulPlayerController::SetupWaitingForInput(bool bShouldWaitForInput)
+{
+	bWaitingForInput = bShouldWaitForInput;
+
+	if (bWaitingForInput)
+	{
+		InputComponent->BindAction(Binding_AnyKeyButton, IE_Pressed, this, &ASoulPlayerController::Any_Pressed);
+		InputComponent->BindAction(Binding_AnyKeyButton, IE_Released, this, &ASoulPlayerController::Any_Released);
+	}
 }
 
 void ASoulPlayerController::SetupActionInput()
@@ -106,10 +149,59 @@ void ASoulPlayerController::Possess(APawn* Pawn)
 {
 	Super::Possess(Pawn);
 
+	GetLocalPlayer()->GetControllerId() == 0 ? bUsingGamepad = false : bUsingGamepad = true;
+
 	PossessedSoul = Cast<ASoul>(Pawn);
 }
 
+void ASoulPlayerController::UnPossess()
+{
+	Super::UnPossess();
+
+	PossessedSoul = nullptr;
+}
+
+ASoul * ASoulPlayerController::GetPossessedSoul()
+{
+	return PossessedSoul;
+}
+
 /*_______________________ Soul Actions _______________________*/
+void ASoulPlayerController::OnInputReceivedWhileWaiting()
+{
+	//JV-TODO: This logic is specific to the Lobby and doesn't belong here...
+
+	UE_LOG(LogInput, Log, TEXT("OnInputReceivedWhileWaiting: %s, ControllerID: %d"), *GetName(), GetLocalPlayer()->GetControllerId());
+
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		AZwentendorfGameMode* gameMode = Cast<AZwentendorfGameMode>(world->GetAuthGameMode());
+
+		ASoulPlayerController* playerToSwitchInput = Cast<ASoulPlayerController>(gameMode->GetFirstAvailablePlayerController());
+
+		if (playerToSwitchInput)
+		{
+			// Get the player which should receive this player's controller index
+			int32 controllerID = playerToSwitchInput->GetLocalPlayer()->GetControllerId();
+			
+			GetLocalPlayer()->SetControllerId(controllerID);
+
+			ASoul* soulToPossess = Cast<ASoul>(gameMode->GetNextUnpossessedPawn());
+
+			if (soulToPossess)
+			{
+				UE_LOG(LogInput, Log, TEXT("valid soulToPossess"));
+
+				playerToSwitchInput->UnbindGameplayInput(false);
+				playerToSwitchInput->BindGameplayInput();
+
+				playerToSwitchInput->Possess(soulToPossess);
+			}
+		}
+	}
+}
+
 void ASoulPlayerController::CalculateAimInput(float DeltaSeconds, FVector aimVector) { bUsingGamepad ? CalculateGamepadAimInput(DeltaSeconds, aimVector) : CalculateMouseAimInput(DeltaSeconds, aimVector); }
 
 void ASoulPlayerController::CalculateGamepadAimInput(float DeltaSeconds, FVector aimVector)
@@ -148,6 +240,10 @@ void ASoulPlayerController::CalculateMouseAimInput(float DeltaSeconds, FVector a
 		}
 	}
 }
+
+//JV-TODO: Instead of early return, maybe we should unbind gameplay actions and enable bWaitingForInput. Once input is received we should check if the input was handled and then rebind gameplay actions.
+
+void ASoulPlayerController::Any_Pressed() { if (bWaitingForInput) { OnInputReceivedWhileWaiting(); } }
 
 void ASoulPlayerController::ChassisSlot_One_Pressed() { if (PossessedSoul) { PossessedSoul->ChassisSlot_One_Pressed(); } }
 

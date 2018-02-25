@@ -23,15 +23,21 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupInputComponent() override;
 	virtual void Possess(APawn* Pawn) override;
+	virtual void UnPossess() override;
 	//End PlayerController interface
 
-	// Static names for axis bindings
+	virtual ASoul* GetPossessedSoul();
+
+	// Bindings
+	static const FName Binding_AnyKeyButton;
+
+	// axis bindings
 	static const FName Binding_MoveForward;
 	static const FName Binding_MoveRight;
 	static const FName Binding_AimForward;
 	static const FName Binding_AimRight;
 
-	// Static names for action bindings
+	// action bindings
 	static const FName Binding_ChassisOne;
 	static const FName Binding_ChassisTwo;
 	static const FName Binding_ChassisThree;
@@ -44,11 +50,15 @@ public:
 	static const FName Binding_Pause;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Soul")
+	UPROPERTY(VisibleAnywhere, Category = "Soul")
 		ASoul *PossessedSoul;
 
 private:
 	//Input Setup
+	void BindGameplayInput();
+	void UnbindGameplayInput(bool bShouldWaitForInput = false);
+
+	void SetupWaitingForInput(bool bShouldWaitForInput);
 	void SetupActionInput();
 	void SetupAxisInput();
 	void SetupAxisInputKeyboard();
@@ -59,6 +69,9 @@ private:
 	void CalculateAimInput(float DeltaSeconds, FVector aimVector);
 	void CalculateGamepadAimInput(float DeltaSeconds, FVector aimVector);
 	void CalculateMouseAimInput(float DeltaSeconds, FVector aimVector);
+
+	void Any_Pressed();
+	void Any_Released() {};
 
 	void ChassisSlot_One_Pressed();
 	void ChassisSlot_One_Released() {};
@@ -80,9 +93,13 @@ private:
 
 	void Pause_Pressed();
 	void Pause_Released() {};
-	
 	//Soul actions end
 
-	bool bUsingGamepad;
-	bool bWaitingForInput;
+	void OnInputReceivedWhileWaiting();
+
+	UPROPERTY(VisibleAnywhere, Category = "Input")
+		bool bUsingGamepad;
+
+	UPROPERTY(VisibleAnywhere, Category = "Input")
+		bool bWaitingForInput;
 };

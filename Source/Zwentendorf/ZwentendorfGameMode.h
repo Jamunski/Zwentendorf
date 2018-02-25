@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "ZwentendorfGameMode.generated.h"
 
+class ASoul;
+
 UCLASS(MinimalAPI)
 class AZwentendorfGameMode : public AGameModeBase
 {
@@ -16,6 +18,23 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual APawn* GetNextUnpossessedPawn();
+
+	virtual APlayerController* GetFirstAvailablePlayerController();
+
+protected:
 	UPROPERTY(Category = Players, EditDefaultsOnly)
-		int NumberOfPlayers;
+		TSubclassOf<ASoul> SoulToPossess;
+
+	UPROPERTY(Category = Players, VisibleAnywhere)
+		TArray<ASoul*> PossessableSouls;
+
+	UPROPERTY(Category = Players, VisibleAnywhere)
+		TArray<APlayerController*> PlayerControllers;
+
+	UPROPERTY(Category = Players, EditDefaultsOnly)
+		int32 NumberOfPlayers;
+
+	UPROPERTY(Category = Players, EditDefaultsOnly)
+		int32 MaxPawnsToPossess;
 };
