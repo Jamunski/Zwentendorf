@@ -4,6 +4,7 @@
 #include "Soul.h"
 #include "SoulPlayerController.h"
 
+#include "WaitingForInputFunctor.h"
 #include "Zwentendorf.h"
 
 #include <Runtime/Engine/Classes/Engine/LocalPlayer.h>
@@ -55,6 +56,37 @@ void AZwentendorfGameMode::BeginPlay()
 			PossessableSouls.Add(soul);
 		}
 	}
+}
+
+APlayerController * AZwentendorfGameMode::SpawnPlayerController(ENetRole InRemoteRole, FVector const & SpawnLocation, FRotator const & SpawnRotation)
+{
+	ASoulPlayerController* playerController = Cast<ASoulPlayerController>(Super::SpawnPlayerController(InRemoteRole, SpawnLocation, SpawnRotation));
+
+	UWaitingForInputFunctor* functor = CreateWaitingForInputFunctor();
+
+	playerController->SetWaitingForInputFunctor(functor);
+
+	return playerController;
+}
+
+void AZwentendorfGameMode::SetWaitingForInputFunctorClass(TSubclassOf<UWaitingForInputFunctor> functorClass)
+{
+	WaitingForInputFunctorClass = functorClass;
+}
+
+UWaitingForInputFunctor* AZwentendorfGameMode::CreateWaitingForInputFunctor()
+{
+	UWaitingForInputFunctor *functor = WaitingForInputFunctorClass.GetDefaultObject();
+
+	// this functor needs to be set in the game mode blueprint
+	check(functor);
+
+	if (functor)
+	{
+		return functor;
+	}
+
+	return nullptr;
 }
 
 APawn * AZwentendorfGameMode::GetNextUnpossessedPawn()

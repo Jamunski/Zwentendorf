@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Soul.h"
+#include "WaitingForInputFunctor.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
@@ -28,6 +29,12 @@ public:
 
 	virtual ASoul* GetPossessedSoul();
 
+	//Input Setup
+	void BindGameplayInput();
+	void UnbindGameplayInput(bool bShouldWaitForInput = false);
+
+	void SetWaitingForInputFunctor(UWaitingForInputFunctor* functor);
+
 	// Bindings
 	static const FName Binding_AnyKeyButton;
 
@@ -50,14 +57,12 @@ public:
 	static const FName Binding_Pause;
 
 protected:
+	UWaitingForInputFunctor* Functor_WaitingForInput;
+
 	UPROPERTY(VisibleAnywhere, Category = "Soul")
 		ASoul *PossessedSoul;
 
 private:
-	//Input Setup
-	void BindGameplayInput();
-	void UnbindGameplayInput(bool bShouldWaitForInput = false);
-
 	void SetupWaitingForInput(bool bShouldWaitForInput);
 	void SetupActionInput();
 	void SetupAxisInput();

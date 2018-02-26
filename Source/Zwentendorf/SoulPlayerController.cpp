@@ -28,6 +28,11 @@ const FName ASoulPlayerController::Binding_Evade("Evade");
 
 const FName ASoulPlayerController::Binding_Pause("Pause");
 
+void ASoulPlayerController::SetWaitingForInputFunctor(UWaitingForInputFunctor* functor)
+{
+	Functor_WaitingForInput = functor;
+}
+
 ASoulPlayerController::ASoulPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -169,36 +174,9 @@ ASoul * ASoulPlayerController::GetPossessedSoul()
 /*_______________________ Soul Actions _______________________*/
 void ASoulPlayerController::OnInputReceivedWhileWaiting()
 {
-	//JV-TODO: This logic is specific to the Lobby and doesn't belong here...
-
-	UE_LOG(LogInput, Log, TEXT("OnInputReceivedWhileWaiting: %s, ControllerID: %d"), *GetName(), GetLocalPlayer()->GetControllerId());
-
-	UWorld* world = GetWorld();
-	if (world)
+	if (Functor_WaitingForInput)
 	{
-		AZwentendorfGameMode* gameMode = Cast<AZwentendorfGameMode>(world->GetAuthGameMode());
-
-		ASoulPlayerController* playerToSwitchInput = Cast<ASoulPlayerController>(gameMode->GetFirstAvailablePlayerController());
-
-		if (playerToSwitchInput)
-		{
-			// Get the player which should receive this player's controller index
-			int32 controllerID = playerToSwitchInput->GetLocalPlayer()->GetControllerId();
-			
-			GetLocalPlayer()->SetControllerId(controllerID);
-
-			ASoul* soulToPossess = Cast<ASoul>(gameMode->GetNextUnpossessedPawn());
-
-			if (soulToPossess)
-			{
-				UE_LOG(LogInput, Log, TEXT("valid soulToPossess"));
-
-				playerToSwitchInput->UnbindGameplayInput(false);
-				playerToSwitchInput->BindGameplayInput();
-
-				playerToSwitchInput->Possess(soulToPossess);
-			}
-		}
+		Functor_WaitingForInput->operator()(this);
 	}
 }
 
