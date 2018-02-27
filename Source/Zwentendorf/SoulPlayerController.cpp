@@ -2,8 +2,15 @@
 
 #include "SoulPlayerController.h"
 
+#include "ZwentendorfGameMode.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Classes/Engine/World.h"
+
 #include <Runtime/Engine/Classes/Engine/LocalPlayer.h>
 #include <Runtime/Engine/Public/DrawDebugHelpers.h>
+
+const FName ASoulPlayerController::Binding_AnyKeyButton("Any_KeyButton");
 
 const FName ASoulPlayerController::Binding_MoveForward("MoveForward");
 const FName ASoulPlayerController::Binding_MoveRight("MoveRight");
@@ -21,10 +28,16 @@ const FName ASoulPlayerController::Binding_Evade("Evade");
 
 const FName ASoulPlayerController::Binding_Pause("Pause");
 
+void ASoulPlayerController::SetWaitingForInputFunctor(UWaitingForInputFunctor* functor)
+{
+	Functor_WaitingForInput = functor;
+}
+
 ASoulPlayerController::ASoulPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bUsingGamepad = false;
+	bWaitingForInput = true;
 
 	bShowMouseCursor = true;
 }
@@ -49,10 +62,45 @@ void ASoulPlayerController::SetupInputComponent()
 
 	check(InputComponent);
 
+	if (bWaitingForInput)
+	{
+		SetupWaitingForInput(true);
+	}
+	else
+	{
+		BindGameplayInput();
+	}
+}
+
+void ASoulPlayerController::BindGameplayInput()
+{
+	UE_LOG(LogInput, Log, TEXT("BindGameplayInput: %s, ControllerID: %d"), *GetName(), GetLocalPlayer()->GetControllerId());
+
 	SetupActionInput();
 	SetupAxisInput();
 	SetupAxisInputKeyboard();
 	SetupAxisInputGamepad();
+}
+
+void ASoulPlayerController::UnbindGameplayInput(bool bShouldWaitForInput)
+{
+	UE_LOG(LogInput, Log, TEXT("UnbindGameplayInput $s, ControllerID: %d"), *GetName(), GetLocalPlayer()->GetControllerId());
+
+	InputComponent->ClearBindingValues();
+	InputComponent->ClearActionBindings();
+
+	SetupWaitingForInput(bShouldWaitForInput);
+}
+
+void ASoulPlayerController::SetupWaitingForInput(bool bShouldWaitForInput)
+{
+	bWaitingForInput = bShouldWaitForInput;
+
+	if (bWaitingForInput)
+	{
+		InputComponent->BindAction(Binding_AnyKeyButton, IE_Pressed, this, &ASoulPlayerController::Any_Pressed);
+		InputComponent->BindAction(Binding_AnyKeyButton, IE_Released, this, &ASoulPlayerController::Any_Released);
+	}
 }
 
 void ASoulPlayerController::SetupActionInput()
@@ -106,10 +154,32 @@ void ASoulPlayerController::Possess(APawn* Pawn)
 {
 	Super::Possess(Pawn);
 
+	GetLocalPlayer()->GetControllerId() == 0 ? bUsingGamepad = false : bUsingGamepad = true;
+
 	PossessedSoul = Cast<ASoul>(Pawn);
 }
 
+void ASoulPlayerController::UnPossess()
+{
+	Super::UnPossess();
+
+	PossessedSoul = nullptr;
+}
+
+ASoul * ASoulPlayerController::GetPossessedSoul()
+{
+	return PossessedSoul;
+}
+
 /*_______________________ Soul Actions _______________________*/
+void ASoulPlayerController::OnInputReceivedWhileWaiting()
+{
+	if (Functor_WaitingForInput)
+	{
+		Functor_WaitingForInput->operator()(this);
+	}
+}
+
 void ASoulPlayerController::CalculateAimInput(float DeltaSeconds, FVector aimVector) { bUsingGamepad ? CalculateGamepadAimInput(DeltaSeconds, aimVector) : CalculateMouseAimInput(DeltaSeconds, aimVector); }
 
 void ASoulPlayerController::CalculateGamepadAimInput(float DeltaSeconds, FVector aimVector)
@@ -148,6 +218,10 @@ void ASoulPlayerController::CalculateMouseAimInput(float DeltaSeconds, FVector a
 		}
 	}
 }
+
+//JV-TODO: Instead of early return, maybe we should unbind gameplay actions and enable bWaitingForInput. Once input is received we should check if the input was handled and then rebind gameplay actions.
+
+void ASoulPlayerController::Any_Pressed() { if (bWaitingForInput) { OnInputReceivedWhileWaiting(); } }
 
 void ASoulPlayerController::ChassisSlot_One_Pressed() { if (PossessedSoul) { PossessedSoul->ChassisSlot_One_Pressed(); } }
 

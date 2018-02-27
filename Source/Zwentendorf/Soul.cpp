@@ -14,6 +14,25 @@ ASoul::ASoul()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 }
 
+void ASoul::PossessedBy(AController * NewController)
+{
+	Super::PossessedBy(NewController);
+
+	bIsPossessed = true;
+}
+
+void ASoul::UnPossessed()
+{
+	Super::UnPossessed();
+
+	bIsPossessed = false;
+}
+
+bool ASoul::IsPossessed()
+{
+	return bIsPossessed;
+}
+
 float ASoul::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
 	float healthPoints = GetHealthPoints();
