@@ -50,6 +50,7 @@ class ZWENTENDORF_API UQuadTreeSetup : public UObject
 public:
 	UQuadTreeSetup(FQuadTreeInfo info);
 	UQuadTreeSetup();
+	UFUNCTION(BlueprintCallable, Category = "QuadTree")
 	void Setup(FRandomStream randomStream, FVector position);
 
 private:
@@ -57,14 +58,19 @@ private:
 	FVector WorldPosition;
 	UAABB* NewQuadCell(FVector center, FVector half);
 	TArray<UAABB*> AABBs;
+	TArray<UAABB*> TrunkNodes;
+	TArray<UAABB*> LeafNodes;
 	FQuadTreeInfo Settings;
 
 	int SliceMaxTries = 25;
 
 	bool Slices;
+	bool SliceBreak;
 
 	void GenerateQuads(UAABB* aabb);
 	
 	FVector RandomSlice(UAABB* aabb);
+	TArray<FVector> CellSize(float horizonalSlice, float verticalSlice, UAABB* aabb);
+	TArray<FVector> CellCenter(float horizonalSlice, float verticalSlice, TArray<FVector> dimensions);
 
 };

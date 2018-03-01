@@ -71,6 +71,8 @@ public:
 	bool ContainsPoint(float x, float y);
 	FBoundaries GetBoundaries();
 	FCorners GetCorners();
+	TArray<UAABB*> ChildAABBs;
+	bool HasChildren;
 
 	UAABB();
 	UAABB(FVector center, FVector dimensions);
