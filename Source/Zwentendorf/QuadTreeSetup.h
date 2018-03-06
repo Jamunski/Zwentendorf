@@ -53,12 +53,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "QuadTree")
 	void Setup(FRandomStream randomStream, FVector position);
 
+	//VV-TODO: decide if this can be public (used in LevelGrid)
+	UPROPERTY()
+	TArray<UAABB*> AABBs;
+
 private:
 	FVector MapDimensions;
 	FVector WorldPosition;
 	UAABB* NewQuadCell(FVector center, FVector half);
-	TArray<UAABB*> AABBs;
+	UPROPERTY()
 	TArray<UAABB*> TrunkNodes;
+	UPROPERTY()
 	TArray<UAABB*> LeafNodes;
 	FQuadTreeInfo Settings;
 

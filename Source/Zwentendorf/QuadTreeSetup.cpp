@@ -2,10 +2,12 @@
 
 #include "QuadTreeSetup.h"
 #include "AABB.h"
+#include "DrawDebugHelpers.h"
 
 UAABB* UQuadTreeSetup::NewQuadCell(FVector center, FVector half)
 {
-	UAABB* createdAABB = new UAABB(center, half);
+	UAABB* createdAABB = NewObject<UAABB>();
+	createdAABB->Initialize(center, half);
 
 	AABBs.Add(createdAABB);
 

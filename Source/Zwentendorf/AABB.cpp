@@ -31,14 +31,13 @@ FCorners UAABB::GetCorners()
 	);															
 }
 
-UAABB::UAABB(FVector center, FVector dimensions)
+void UAABB::Initialize(FVector center, FVector dimensions)
 {
 	Center = center;
 	Dimensions = dimensions;
 }
 
-UAABB::UAABB()
+FVector UAABB::GetLocation()
 {
-	Center = FVector::ZeroVector;
-	Dimensions = FVector::ZeroVector;
+	return Center;
 }
